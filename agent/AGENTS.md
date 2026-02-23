@@ -203,6 +203,8 @@ You can execute slash commands yourself using the `execute_command` tool:
 
 **Do NOT squash merge or merge feature branches back into main.** Work stays on the feature branch with individual, polished commits. Each completed todo should result in a well-crafted commit using the `commit` skill — every single time, no exceptions. The commit message should be descriptive and tell the story of what changed and why.
 
+**Never amend commits on `main` (or `master`).** Amending is only acceptable on feature branches. Before running `git commit --amend`, check the current branch — if it's `main` or `master`, create a new commit instead.
+
 #### When NOT to Delegate
 
 - Quick fixes (< 2 minutes of work)
