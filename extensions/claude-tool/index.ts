@@ -13,9 +13,11 @@
  * Sessions are indexed locally in .pi/claude-sessions.json (last 50) with
  * prompt, model, timestamp, cost, and turns for quick lookup.
  *
- * To resume or inspect a session later:
- *   claude --resume <session-id>          # interactive
- *   claude -p "follow up" --resume <id>   # non-interactive
+ * To resume a session, pass `resumeSessionId` with the session UUID.
+ * This loads the conversation history and continues where it left off.
+ * Useful for retrying cancelled runs or asking follow-up questions.
+ *
+ * From the CLI: `claude --resume <session-id>`
  *
  * The session ID is shown in the tool's live progress and final output,
  * and also available in the tool result details for other agents to use.
@@ -98,7 +100,8 @@ export default function (pi: ExtensionAPI) {
 			`Use this when you need Claude Code's capabilities (especially web search) or want to delegate a self-contained task. ` +
 			`The result is streamed back live. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}. ` +
 			`Set outputFile to write the result to a file instead of returning it inline — saves tokens in your context. ` +
-			`The file can be read later by you or handed off to a subagent.`,
+			`The file can be read later by you or handed off to a subagent. ` +
+			`Set resumeSessionId to continue a previous session (e.g. after cancellation or for follow-up questions).`,
 
 		parameters: Type.Object({
 			prompt: Type.String({ description: "The task or question for Claude Code" }),
@@ -125,10 +128,19 @@ export default function (pi: ExtensionAPI) {
 						"will be consumed by a subagent later (e.g. '.pi/research.md').",
 				})
 			),
+			resumeSessionId: Type.Optional(
+				Type.String({
+					description:
+						"Resume a previous Claude Code session by its ID. " +
+						"Loads the conversation history and continues where it left off. " +
+						"The session ID is returned in details of every claude tool call. " +
+						"Use this to retry cancelled runs or ask follow-up questions.",
+				})
+			),
 		}),
 
 		async execute(_toolCallId, params, signal, onUpdate, ctx) {
-			const { prompt, model, maxTurns, systemPrompt, outputFile } = params;
+			const { prompt, model, maxTurns, systemPrompt, outputFile, resumeSessionId } = params;
 			const startTime = Date.now();
 
 			const abortController = new AbortController();
@@ -147,6 +159,7 @@ export default function (pi: ExtensionAPI) {
 
 			if (model) options.model = model;
 			if (systemPrompt) options.appendSystemPrompt = systemPrompt;
+			if (resumeSessionId) options.resume = resumeSessionId;
 
 			let fullText = "";
 			let cost = 0;
@@ -325,6 +338,10 @@ export default function (pi: ExtensionAPI) {
 
 		renderCall(args, theme) {
 			let text = theme.fg("toolTitle", theme.bold("claude "));
+			if (args.resumeSessionId) {
+				text += theme.fg("warning", "resume ");
+				text += theme.fg("dim", args.resumeSessionId.slice(0, 8) + "… ");
+			}
 			const prompt = args.prompt?.length > 100 ? args.prompt.slice(0, 100) + "…" : args.prompt;
 			text += theme.fg("accent", `"${prompt}"`);
 			if (args.model) text += theme.fg("dim", ` model=${args.model}`);
