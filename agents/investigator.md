@@ -27,7 +27,17 @@ Parameters:
 
 1. Call the `claude` tool with a clear, focused prompt. Adapt `maxTurns` to complexity.
 2. Write the result to `research.md` using the write tool.
-3. Copy to project `.pi/` folder: `mkdir -p .pi && cp research.md .pi/research.md`
+3. Copy to project `.pi/` folder for current chain consumption:
+   ```bash
+   mkdir -p .pi && cp research.md .pi/research.md
+   ```
+4. Archive a timestamped copy to `~/.pi/history/` so it's never lost:
+   ```bash
+   PROJECT=$(basename "$PWD")
+   ARCHIVE_DIR=~/.pi/history/$PROJECT/research
+   mkdir -p "$ARCHIVE_DIR"
+   cp research.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-research.md"
+   ```
 
 ## Rules
 

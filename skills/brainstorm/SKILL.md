@@ -362,10 +362,10 @@ Workers are expensive (Sonnet). Every minute a worker spends grepping and readin
 { agent: "scout", task: "Gather context for implementing [feature]. Key areas: [list from plan]. Read the plan at ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md and identify all files that will be created or modified. Map out existing patterns, types, imports, and conventions that workers will need." }
 
 // Step 2: Workers execute todos sequentially — each gets the scout's context
-{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from chain_dir or ~/.pi/history/<project>/context.md}" }
+{ agent: "worker", task: "Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from .pi/context.md}" }
 
 // Check result, then next todo with same scout context
-{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from chain_dir or ~/.pi/history/<project>/context.md}" }
+{ agent: "worker", task: "Implement TODO-yyyy. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md\n\nScout context (use as your starting baseline — you can still look around but this covers the key files):\n{read context.md from .pi/context.md}" }
 
 // After all todos complete, review the feature branch against main
 { agent: "reviewer", task: "Review the feature branch against main. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" }
@@ -373,14 +373,14 @@ Workers are expensive (Sonnet). Every minute a worker spends grepping and readin
 
 ### Practical Implementation
 
-The scout writes its findings to `context.md` (and copies to `~/.pi/history/<project>/context.md`). Before spawning each worker, **read the scout's context file and paste it into the worker's task**:
+The scout writes its findings to `context.md` (working copy in `.pi/context.md`, archived in `~/.pi/history/<project>/scouts/`). Before spawning each worker, **read the scout's context file and paste it into the worker's task**:
 
 ```typescript
 // 1. Run scout
 subagent({ agent: "scout", task: "Gather context for [feature]. Read the plan at ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md. Identify all files that will be created/modified, map existing patterns, types, and conventions." })
 
-// 2. Read the scout's output
-const scoutContext = read("~/.pi/history/<project>/context.md")
+// 2. Read the scout's working copy
+const scoutContext = read(".pi/context.md")
 
 // 3. Pass it to each worker
 subagent({ agent: "worker", task: `Implement TODO-xxxx. Use the commit skill to write a polished, descriptive commit message. Mark the todo as done. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md

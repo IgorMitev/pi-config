@@ -86,9 +86,19 @@ Write your findings to `context.md` in a structured format:
 [Things to watch out for during implementation]
 ```
 
-After writing `context.md`, also copy it to the project-local `.pi/` folder so other agents and sessions can pick it up:
+After writing `context.md`:
+
+1. Copy to project-local `.pi/` for current chain consumption:
 ```bash
 mkdir -p .pi && cp context.md .pi/context.md
+```
+
+2. Archive a timestamped copy to `~/.pi/history/` so it's never lost:
+```bash
+PROJECT=$(basename "$PWD")
+ARCHIVE_DIR=~/.pi/history/$PROJECT/scouts
+mkdir -p "$ARCHIVE_DIR"
+cp context.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-context.md"
 ```
 
 ## Constraints

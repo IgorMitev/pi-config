@@ -138,9 +138,19 @@ Output to `review.md`:
 - [ ] [Action item if needs changes]
 ```
 
-After writing `review.md`, also copy it to the project-local `.pi/` folder so other agents and sessions can pick it up:
+After writing `review.md`:
+
+1. Copy to project-local `.pi/` for current chain consumption:
 ```bash
 mkdir -p .pi && cp review.md .pi/review.md
+```
+
+2. Archive a timestamped copy to `~/.pi/history/` so it's never lost:
+```bash
+PROJECT=$(basename "$PWD")
+ARCHIVE_DIR=~/.pi/history/$PROJECT/reviews
+mkdir -p "$ARCHIVE_DIR"
+cp review.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-review.md"
 ```
 
 ## Constraints

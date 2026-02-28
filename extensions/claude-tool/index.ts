@@ -35,7 +35,8 @@ import { Type } from "@sinclair/typebox";
 import { Text } from "@mariozechner/pi-tui";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, basename } from "node:path";
+import { homedir } from "node:os";
 
 function formatDuration(ms: number): string {
 	const secs = Math.floor(ms / 1000);
@@ -66,7 +67,7 @@ function compressToolChain(tools: string[]): string {
 		.join(" → ");
 }
 
-/** Append a session record to .pi/claude-sessions.json */
+/** Append a session record to ~/.pi/history/<project>/claude-sessions.json */
 function indexSession(cwd: string, record: {
 	sessionId: string;
 	prompt: string;
@@ -77,7 +78,8 @@ function indexSession(cwd: string, record: {
 	turns: number;
 }) {
 	try {
-		const dir = join(cwd, ".pi");
+		const project = basename(cwd);
+		const dir = join(homedir(), ".pi", "history", project);
 		mkdirSync(dir, { recursive: true });
 		const file = join(dir, "claude-sessions.json");
 		let sessions: any[] = [];
@@ -95,12 +97,14 @@ export default function (pi: ExtensionAPI) {
 		name: "claude",
 		label: "Claude Code",
 		description:
-			`Invoke Claude Code to perform autonomous tasks: web research, code analysis, file operations, or anything Claude Code can do. ` +
-			`Claude Code has built-in tools for web search, file reading/writing, bash, and more. ` +
-			`Use this when you need Claude Code's capabilities (especially web search) or want to delegate a self-contained task. ` +
-			`The result is streamed back live. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}. ` +
-			`Set outputFile to write the result to a file instead of returning it inline — saves tokens in your context. ` +
-			`The file can be read later by you or handed off to a subagent. ` +
+			`Invoke Claude Code for multi-step investigative tasks: web research, deep code analysis across many files, ` +
+			`broad exploration, or anything requiring multiple tool calls and reasoning. Claude Code has web search, ` +
+			`file access, bash, and all built-in tools. Do NOT use this for simple tasks you can do directly — ` +
+			`curl, read a file, run a command, check git status, etc. Use your own tools for those. ` +
+			`This tool spins up a full Claude Code session which is expensive and slow. Reserve it for tasks ` +
+			`that genuinely benefit from autonomous multi-turn execution. ` +
+			`Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}. ` +
+			`Set outputFile to write the result to a file instead of returning inline — saves tokens in your context. ` +
 			`Set resumeSessionId to continue a previous session (e.g. after cancellation or for follow-up questions).`,
 
 		parameters: Type.Object({

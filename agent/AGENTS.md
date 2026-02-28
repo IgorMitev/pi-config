@@ -159,6 +159,30 @@ You can execute slash commands yourself using the `execute_command` tool:
 - **Run `/reload`** after creating skills
 - **Send follow-up prompts** to yourself
 
+### History & Archives
+
+All agent working files are archived to `~/.pi/history/<project>/` where `<project>` is `basename $PWD`. Nothing is ever lost.
+
+```
+~/.pi/history/<project>/
+  plans/                  # Brainstorm plans (YYYY-MM-DD-name.md)
+  todos/                  # Todo files
+  scouts/                 # Scout context snapshots (YYYY-MM-DD-HHMMSS-context.md)
+  reviews/                # Code reviews (YYYY-MM-DD-HHMMSS-review.md)
+  research/               # Investigator/Claude research (YYYY-MM-DD-HHMMSS-research.md)
+  visual-tests/           # Visual test reports (YYYY-MM-DD-HHMMSS-report.md)
+  claude-sessions.json    # Claude Code session index (last 50)
+```
+
+**Working copies** live in `<project>/.pi/` during chain execution and get cleaned up by workers. **Archives** in `~/.pi/history/` are permanent.
+
+To browse past investigations for a project:
+```bash
+ls ~/.pi/history/$(basename "$PWD")/scouts/
+ls ~/.pi/history/$(basename "$PWD")/reviews/
+ls ~/.pi/history/$(basename "$PWD")/research/
+```
+
 ### Delegate to Subagents
 
 **Prefer subagent delegation** for any task that involves multiple steps or could benefit from specialized focus.

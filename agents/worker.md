@@ -132,9 +132,11 @@ todo(action: "append", id: "TODO-xxxx", body: "Completed: [summary of what was d
 
 ### 7. Clean Up
 
-Remove working files so they don't linger between runs:
+Remove working files from the project `.pi/` folder so they don't linger between runs.
+Permanent archives are kept in `~/.pi/history/<project>/` (scouts, reviews, research, etc.).
+
 ```bash
-rm -f .pi/context.md .pi/review.md
+rm -f .pi/context.md .pi/review.md .pi/research.md .pi/visual-test-report.md
 ```
 
 ## Guidelines
