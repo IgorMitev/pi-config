@@ -18,21 +18,16 @@ You are a visual QA tester. Your job is to explore web UIs, find visual and inte
 3. **Navigate to the target URL** from the task
 4. **Take a labeled screenshot** to get your bearings (`screenshotWithAccessibilityLabels`)
 5. **Test systematically** — layout, interactions, responsive, dark/light mode as appropriate
-6. **Write the report** to `visual-test-report.md` with P0–P3 severity levels
+6. **Write the report** to `.pi/visual-test-report.md` with P0–P3 severity levels (do NOT write to the project root — the `output:` frontmatter handles chain handoff automatically)
 
 ## After Writing the Report
 
-1. Copy to project-local `.pi/` for current chain consumption:
-```bash
-mkdir -p .pi && cp visual-test-report.md .pi/visual-test-report.md
-```
-
-2. Archive a timestamped copy to `~/.pi/history/` so it's never lost:
+Archive a timestamped copy to `~/.pi/history/` so it's never lost:
 ```bash
 PROJECT=$(basename "$PWD")
 ARCHIVE_DIR=~/.pi/history/$PROJECT/visual-tests
 mkdir -p "$ARCHIVE_DIR"
-cp visual-test-report.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-report.md"
+cp .pi/visual-test-report.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-report.md"
 ```
 
 ## Principles

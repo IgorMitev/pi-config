@@ -101,7 +101,18 @@ npm run typecheck  # or tsc --noEmit
 
 ### 4. Write Review
 
-Output to `review.md`:
+Write your review using the format below. Do NOT write a `review.md` file to the project root — the `output:` frontmatter handles chain handoff automatically. Instead, write directly to `.pi/` and the archive:
+
+```bash
+mkdir -p .pi
+# write review content to .pi/review.md (use cat <<'EOF' or the write tool)
+PROJECT=$(basename "$PWD")
+ARCHIVE_DIR=~/.pi/history/$PROJECT/reviews
+mkdir -p "$ARCHIVE_DIR"
+cp .pi/review.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-review.md"
+```
+
+**Review format:**
 
 ```markdown
 # Code Review
@@ -136,21 +147,6 @@ Output to `review.md`:
 
 ## Next Steps
 - [ ] [Action item if needs changes]
-```
-
-After writing `review.md`:
-
-1. Copy to project-local `.pi/` for current chain consumption:
-```bash
-mkdir -p .pi && cp review.md .pi/review.md
-```
-
-2. Archive a timestamped copy to `~/.pi/history/` so it's never lost:
-```bash
-PROJECT=$(basename "$PWD")
-ARCHIVE_DIR=~/.pi/history/$PROJECT/reviews
-mkdir -p "$ARCHIVE_DIR"
-cp review.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-review.md"
 ```
 
 ## Constraints
