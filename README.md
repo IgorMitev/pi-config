@@ -4,58 +4,41 @@ My personal [pi](https://github.com/badlogic/pi) configuration — agents, skill
 
 ## Setup
 
-### 1. Install packages
+Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
+
+### Fresh machine
 
 ```bash
-pi install npm:pi-subagents
-pi install npm:pi-mcp-adapter
-pi install npm:pi-smart-sessions
+# 1. Install pi (https://github.com/badlogic/pi)
+
+# 2. Clone this repo as your agent config
+mkdir -p ~/.pi
+git clone git@github.com:HazAT/pi-config ~/.pi/agent
+
+# 3. Run setup (installs packages + extension deps)
+cd ~/.pi/agent && ./setup.sh
+
+# 4. Add your API keys to ~/.pi/agent/auth.json
+
+# 5. Restart pi
 ```
 
-### 2. Install this config
-
-**As a package (recommended):**
-```bash
-pi install git:github.com/HazAT/pi-config
-```
-
-**Or for local development:**
-```bash
-git clone https://github.com/HazAT/pi-config.git ~/Projects/pi-config
-# Add "/Users/YOUR_USERNAME/Projects/pi-config" to packages in ~/.pi/agent/settings.json
-```
-
-### 3. Symlink agents and extensions for discovery
-
-pi-subagents looks for agents in `~/.pi/agent/agents/`. Extensions with dependencies need their own directory in `~/.pi/agent/extensions/`.
+### Updating
 
 ```bash
-PI_CONFIG_DIR="$HOME/.pi/agent/git/github.com/HazAT/pi-config"
-# Or if using local dev: PI_CONFIG_DIR="$HOME/Projects/pi-config"
-
-# Agents
-mkdir -p ~/.pi/agent/agents
-for agent in "$PI_CONFIG_DIR"/agents/*.md; do
-  ln -sf "$agent" ~/.pi/agent/agents/
-done
-
-# Claude tool extension (needs node_modules installed locally)
-mkdir -p ~/.pi/agent/extensions/claude-tool
-ln -sf "$PI_CONFIG_DIR"/extensions/claude-tool/index.ts ~/.pi/agent/extensions/claude-tool/
-ln -sf "$PI_CONFIG_DIR"/extensions/claude-tool/package.json ~/.pi/agent/extensions/claude-tool/
-ln -sf "$PI_CONFIG_DIR"/extensions/claude-tool/package-lock.json ~/.pi/agent/extensions/claude-tool/
-cd ~/.pi/agent/extensions/claude-tool && npm install && cd -
+cd ~/.pi/agent && git pull
 ```
 
-### 4. Restart pi
+That's it. Extensions, skills, agents, and prompts update instantly.
 
-## Packages
+### What setup.sh does
 
-| Package | Purpose |
-|---------|---------|
-| [pi-subagents](https://github.com/nicobailon/pi-subagents) | `subagent` tool for delegating tasks to scout, worker, reviewer agents |
-| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) | MCP server integration |
-| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions) | Auto-names sessions with AI-generated summaries from skill invocations |
+1. Creates `settings.json` with the right packages (if it doesn't exist)
+2. Installs git packages via `pi install`:
+   - [pi-subagents](https://github.com/nicobailon/pi-subagents) — `subagent` tool for delegating tasks
+   - [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) — MCP server integration
+   - [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions) — AI-generated session names
+3. Runs `npm install` for extensions with dependencies (claude-tool)
 
 ---
 
@@ -70,12 +53,8 @@ Specialized subagents for delegated workflows, powered by `pi-subagents`.
 | **scout** | Haiku | Fast codebase reconnaissance — gathers context without making changes |
 | **worker** | Sonnet 4.6 | Implements tasks from todos, commits with polished messages, closes todos |
 | **reviewer** | Codex 5.3 | Reviews code for quality and security using the shared review-rubric skill |
-| **investigator** | Haiku → Claude Code | Offloads tasks to Claude Code for web research, analysis, etc. — runs out of context |
+| **investigator** | Haiku → Claude Code | Offloads tasks to Claude Code for web research, analysis, etc. |
 | **visual-tester** | Sonnet 4.6 | Visual QA — navigates web UIs via Playwriter MCP, spots issues, tests interactions |
-
-Agents write working files (context, review, research) to `.pi/` in the project root so other agents and sessions can pick them up.
-
-The brainstorm skill always runs **scout first → workers → reviewer** so workers start with a strong context baseline instead of exploring from scratch.
 
 ### Skills
 
@@ -88,32 +67,36 @@ Loaded on-demand when the context matches.
 | **commit** | Making git commits (mandatory for every commit) |
 | **frontend-design** | Building web components, pages, or apps |
 | **github** | Working with GitHub via `gh` CLI |
-| **review-rubric** | Shared review guidelines — used by both the `/review` extension and the reviewer agent |
-| **skill-creator** | Scaffolding new agent skills following the Agent Skills spec |
+| **learn-codebase** | Onboarding to a new project, checking conventions |
+| **review-rubric** | Shared review guidelines — used by `/review` and the reviewer agent |
+| **session-reader** | Reading and analyzing pi session JSONL files |
+| **skill-creator** | Scaffolding new agent skills |
+| **tmux** | Driving interactive CLIs via tmux |
 | **visual-tester** | Visual testing web UIs with Playwriter MCP |
 
 ### Extensions
 
 | Extension | What it provides |
 |-----------|------------------|
-| **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions from last message into interactive Q&A UI |
-| **claude-tool/** | `claude` tool — invoke Claude Code from within pi for web research, autonomous tasks, or anything Claude Code can do. Streams results live with elapsed time, tool chain, and cost. Supports `outputFile` for token-efficient delegation to subagents. Sessions are persisted and indexed in `.pi/claude-sessions.json` |
-| **context-filter/** | `.pi/.context` file for controlling which files and skills appear in the system prompt |
+| **answer.ts** | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
+| **branch.ts** | Branch management utilities |
+| **claude-tool/** | `claude` tool — invoke Claude Code for web research, autonomous tasks. Streams results live |
+| **context-filter/** | `.pi/.context` file for controlling system prompt content |
 | **cost.ts** | `/cost` command — API cost summary across sessions and models |
 | **execute-command.ts** | `execute_command` tool — lets the agent self-invoke `/answer`, `/reload`, etc. |
 | **ghostty.ts** | Ghostty terminal title + progress bar integration |
 | **review.ts** | `/review` + `/end-review` — code review for PRs, branches, commits, or uncommitted changes |
 | **todos.ts** | `/todos` command + `todo` tool — file-based todo management with locking and TUI |
+| **watchdog.ts** | Monitors agent behavior |
 
 ### AGENTS.md
 
-[`agent/AGENTS.md`](agent/AGENTS.md) defines core principles (proactive mindset, keep it simple, read before edit, verify before done, etc.), agent delegation patterns, skill triggers, and commit strategy. Symlinked to `~/.pi/agent/AGENTS.md`.
+[`AGENTS.md`](AGENTS.md) defines core principles (proactive mindset, keep it simple, read before edit, verify before done, etc.), agent delegation patterns, skill triggers, and commit strategy.
 
 ### MCP Servers
 
-[`agent/mcp.json`](agent/mcp.json) configures MCP servers:
+[`mcp.json`](mcp.json) configures MCP servers:
 - **playwriter** — Browser automation for visual testing
-- **spark** — Local dev server
 
 ---
 
@@ -131,9 +114,9 @@ Loaded on-demand when the context matches.
 
 | Tool | Source | Description |
 |------|--------|-------------|
-| `claude` | this config | Invoke Claude Code for web research, code analysis, or any autonomous task. Supports `outputFile` to write results to disk instead of returning inline |
-| `execute_command` | this config | Self-invoke slash commands or send follow-up prompts |
-| `todo` | this config | Manage file-based todos (list, create, update, claim, close) |
+| `claude` | claude-tool extension | Invoke Claude Code for web research, code analysis, or any autonomous task |
+| `execute_command` | execute-command extension | Self-invoke slash commands or send follow-up prompts |
+| `todo` | todos extension | Manage file-based todos (list, create, update, claim, close) |
 | `subagent` | pi-subagents | Delegate tasks to agents with chains and parallel execution |
 | `subagent_status` | pi-subagents | Check async subagent run status |
 

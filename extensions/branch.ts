@@ -1,5 +1,6 @@
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { getMarkdownTheme } from "@mariozechner/pi-coding-agent";
+import { completeSimple } from "@mariozechner/pi-ai";
 import { Box, Markdown, Text } from "@mariozechner/pi-tui";
 
 type BranchEntry = {
@@ -49,6 +50,101 @@ function getBranchInfo(ctx: ExtensionContext): BranchInfo {
 
 	return { count: summaries.length, totalChars, estimatedTokens, contextPercent, summaries };
 }
+
+/**
+ * Serialize session entries into a text representation for summarization.
+ * Handles user messages, assistant messages, branch summaries, compaction summaries.
+ */
+function serializeEntries(entries: BranchEntry[]): string {
+	const parts: string[] = [];
+
+	for (const entry of entries) {
+		if (entry.type === "message") {
+			const msg = entry.message as { role: string; content: unknown };
+			if (!msg) continue;
+
+			if (msg.role === "user") {
+				const text = typeof msg.content === "string"
+					? msg.content
+					: Array.isArray(msg.content)
+						? (msg.content as { type: string; text?: string }[])
+							.filter((c) => c.type === "text")
+							.map((c) => c.text ?? "")
+							.join("")
+						: "";
+				if (text) parts.push(`[User]: ${text}`);
+			} else if (msg.role === "assistant") {
+				const content = msg.content;
+				if (!Array.isArray(content)) continue;
+				const textParts: string[] = [];
+				const toolCalls: string[] = [];
+				for (const block of content as { type: string; text?: string; thinking?: string; name?: string; arguments?: Record<string, unknown> }[]) {
+					if (block.type === "text" && block.text) {
+						textParts.push(block.text);
+					} else if (block.type === "toolCall" && block.name) {
+						const args = block.arguments ?? {};
+						const argsStr = Object.entries(args)
+							.map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+							.join(", ");
+						toolCalls.push(`${block.name}(${argsStr})`);
+					}
+				}
+				if (textParts.length > 0) parts.push(`[Assistant]: ${textParts.join("\n")}`);
+				if (toolCalls.length > 0) parts.push(`[Assistant tool calls]: ${toolCalls.join("; ")}`);
+			} else if (msg.role === "toolResult") {
+				const content = msg.content;
+				if (!Array.isArray(content)) continue;
+				const text = (content as { type: string; text?: string }[])
+					.filter((c) => c.type === "text")
+					.map((c) => c.text ?? "")
+					.join("");
+				if (text) parts.push(`[Tool result]: ${text}`);
+			}
+		} else if (entry.type === "branch_summary" && entry.summary) {
+			parts.push(`[Branch summary]: ${entry.summary}`);
+		} else if (entry.type === "compaction" && entry.summary) {
+			parts.push(`[Previous context summary]: ${entry.summary}`);
+		}
+	}
+
+	return parts.join("\n\n");
+}
+
+const SUMMARIZATION_SYSTEM_PROMPT = `You are a context summarization assistant. Your task is to read a conversation between a user and an AI coding assistant, then produce a structured summary following the exact format specified.
+
+Do NOT continue the conversation. Do NOT respond to any questions in the conversation. ONLY output the structured summary.`;
+
+const FULL_SUMMARY_PROMPT = `Create a comprehensive summary of this entire conversation for continuing work in a fresh session.
+
+Use this EXACT format:
+
+## Goal
+[What is the user trying to accomplish?]
+
+## Constraints & Preferences
+- [Any constraints, preferences, or requirements mentioned]
+- [Or "(none)" if none were mentioned]
+
+## Progress
+### Done
+- [x] [Completed tasks/changes]
+
+### In Progress
+- [ ] [Work that was started but not finished]
+
+### Blocked
+- [Issues preventing progress, if any]
+
+## Key Decisions
+- **[Decision]**: [Brief rationale]
+
+## Current State
+[What is the current state of the work? What files were modified? What's the current branch?]
+
+## Next Steps
+1. [What should happen next to continue this work]
+
+Keep each section concise. Preserve exact file paths, function names, and error messages.`;
 
 function formatTokens(tokens: number): string {
 	if (tokens >= 1000) return `${(tokens / 1000).toFixed(1)}k`;
@@ -173,80 +269,123 @@ export default function (pi: ExtensionAPI) {
 	// --- /compress command ---
 
 	pi.registerCommand("compress", {
-		description: "Compress all branch summaries into a single summary, starting fresh from root",
+		description: "Summarize the entire session and start a new session with the summary (original session is preserved)",
 		handler: async (_args, ctx) => {
 			await ctx.waitForIdle();
 
-			const info = getBranchInfo(ctx);
-
-			if (info.count < 2) {
-				ctx.ui.notify(
-					info.count === 0
-						? "No branch summaries to compress"
-						: "Only 1 branch summary — nothing to compress",
-					"info",
-				);
+			const leafId = ctx.sessionManager.getLeafId();
+			if (!leafId) {
+				ctx.ui.notify("No conversation to compress", "warning");
 				return;
 			}
 
-			const tokenStr = formatTokens(info.estimatedTokens);
-			const pctStr = info.contextPercent !== null ? ` (${info.contextPercent.toFixed(1)}% of context)` : "";
+			const path = ctx.sessionManager.getBranch(leafId) as BranchEntry[];
+			if (path.length < 2) {
+				ctx.ui.notify("Not enough conversation to compress", "info");
+				return;
+			}
+
+			const model = ctx.model;
+			if (!model) {
+				ctx.ui.notify("No model selected", "warning");
+				return;
+			}
+
+			// Estimate conversation size
+			const conversationText = serializeEntries(path);
+			const estimatedTokens = Math.ceil(conversationText.length / 4);
+			const tokenStr = formatTokens(estimatedTokens);
+
 			const ok = await ctx.ui.confirm(
-				"Compress branches",
-				`Compress ${info.count} branch summaries (~${tokenStr} tokens${pctStr}) into one?`,
+				"Compress to new session",
+				`Summarize ~${tokenStr} tokens of conversation and start a fresh session?\nThe original session will be preserved.`,
 			);
 			if (!ok) return;
 
-			// Collect all branch summary texts
-			const leafId = ctx.sessionManager.getLeafId()!;
-			const path = ctx.sessionManager.getBranch(leafId) as BranchEntry[];
+			ctx.ui.notify("Generating summary...", "info");
 
-			const allSummaries: string[] = [];
-			for (const entry of path) {
-				if (entry.type === "branch_summary" && entry.summary) {
-					allSummaries.push(entry.summary);
-				}
+			// Generate a full summary of the conversation via LLM
+			const apiKey = await ctx.modelRegistry.getApiKey(model);
+			if (!apiKey) {
+				ctx.ui.notify(`No API key for ${model.provider}`, "error");
+				return;
 			}
 
-			// Find root entry to navigate to
-			const rootId = path[0].id;
+			// Trim conversation to fit within model context window (leave room for prompt + response)
+			const contextWindow = model.contextWindow || 128000;
+			const reserveTokens = 8192; // room for system prompt + summary prompt + response
+			const maxConversationTokens = contextWindow - reserveTokens;
+			const maxConversationChars = maxConversationTokens * 4;
+			const trimmedConversation = conversationText.length > maxConversationChars
+				? conversationText.slice(-maxConversationChars)
+				: conversationText;
 
-			// Navigate to root with summarize + custom instructions that combine all summaries
-			const combinedInput = allSummaries
-				.map((s, i) => `--- Branch ${i + 1} ---\n${s}`)
-				.join("\n\n");
+			const promptText = `<conversation>\n${trimmedConversation}\n</conversation>\n\n${FULL_SUMMARY_PROMPT}`;
 
-			const compressInstructions = [
-				"You are compressing multiple branch summaries into a single coherent summary.",
-				"The user has been working across several conversation branches. Each branch summary below captures what happened in that branch.",
-				"Create ONE combined summary that:",
-				"- Preserves all important context, decisions, and progress",
-				"- Removes redundancy between branches",
-				"- Maintains chronological order where possible",
-				"- Uses the same structured format (## Goal, ## Progress, ## Key Decisions, ## Next Steps)",
-				"- Notes which items are from which branch when relevant",
-				"",
-				"Here are the branch summaries to combine:",
-				"",
-				combinedInput,
-			].join("\n");
-
-			ctx.ui.notify("Compressing branch summaries...", "info");
-
-			const result = await ctx.navigateTree(rootId, {
-				summarize: true,
-				customInstructions: compressInstructions,
-				replaceInstructions: true,
-			});
-
-			if (result.cancelled) {
-				ctx.ui.notify("Compress cancelled", "info");
-			} else {
-				updateBranchStatus(ctx);
-				ctx.ui.notify(
-					`Compressed ${info.count} branches into 1`,
-					"success",
+			try {
+				const response = await completeSimple(
+					model,
+					{
+						systemPrompt: SUMMARIZATION_SYSTEM_PROMPT,
+						messages: [
+							{
+								role: "user" as const,
+								content: [{ type: "text" as const, text: promptText }],
+								timestamp: Date.now(),
+							},
+						],
+					},
+					{ apiKey, maxTokens: 4096 },
 				);
+
+				if (response.stopReason === "aborted") {
+					ctx.ui.notify("Compress cancelled", "info");
+					return;
+				}
+				if (response.stopReason === "error") {
+					ctx.ui.notify(`Summary generation failed: ${response.errorMessage || "unknown error"}`, "error");
+					return;
+				}
+
+				const summary = response.content
+					.filter((c: { type: string }) => c.type === "text")
+					.map((c: { type: string; text: string }) => c.text)
+					.join("\n");
+
+				if (!summary) {
+					ctx.ui.notify("No summary generated", "error");
+					return;
+				}
+
+				// Collect branch info for the custom message details
+				const info = getBranchInfo(ctx);
+				const parentSession = ctx.sessionManager.getSessionFile();
+
+				// Create a new session with the summary injected as the initial context
+				const result = await ctx.newSession({
+					parentSession,
+					setup: async (sessionManager) => {
+						sessionManager.appendCustomMessageEntry(
+							"branch-compressed",
+							summary,
+							true,
+							{
+								count: info.count || 1,
+								tokens: Math.ceil(summary.length / 4),
+								percent: null,
+							},
+						);
+					},
+				});
+
+				if (result.cancelled) {
+					ctx.ui.notify("Compress cancelled", "info");
+				} else {
+					updateBranchStatus(ctx);
+					ctx.ui.notify("Started fresh session with conversation summary", "success");
+				}
+			} catch (err) {
+				ctx.ui.notify(`Compress failed: ${err instanceof Error ? err.message : String(err)}`, "error");
 			}
 		},
 	});

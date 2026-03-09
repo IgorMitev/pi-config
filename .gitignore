@@ -7,6 +7,13 @@ sessions/
 bin/
 settings.json
 
+# Pi runtime files (created when this repo is ~/.pi/agent/)
+git/
+mcp-cache.json
+mcp-npx-cache.json
+run-history.jsonl
+session-manager-config.toml
+
 # Extension dependencies (install locally)
 extensions/*/node_modules/
 

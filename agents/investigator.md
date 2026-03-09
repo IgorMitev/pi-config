@@ -2,7 +2,6 @@
 name: investigator
 description: Offloads tasks to Claude Code — web research, code analysis, anything Claude Code can do autonomously
 tools: claude, write, bash
-extensions: /Users/haza/.pi/agent/extensions/claude-tool
 model: claude-haiku-4-5
 output: research.md
 ---
