@@ -183,8 +183,8 @@ class ClaudeStreamPanel implements Component {
 		// ── Tool chain ──
 		if (this.state.toolUses.length > 0) {
 			const chain = compressToolChain(this.state.toolUses);
-			const wrapped = wrapTextWithAnsi(th.fg("dim", "tools: " + chain), innerW);
-			for (const wl of wrapped.split("\n")) {
+			const toolLine = th.fg("dim", "tools: " + chain);
+			for (const wl of wrapTextWithAnsi(toolLine, innerW)) {
 				lines.push(pad(wl));
 			}
 		}
@@ -204,8 +204,7 @@ class ClaudeStreamPanel implements Component {
 				if (rl === "") {
 					wrappedLines.push("");
 				} else {
-					const wrapped = wrapTextWithAnsi(rl, innerW);
-					wrappedLines.push(...wrapped.split("\n"));
+					wrappedLines.push(...wrapTextWithAnsi(rl, innerW));
 				}
 			}
 
