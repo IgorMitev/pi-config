@@ -242,10 +242,13 @@ export default function panelAgentsExtension(pi: ExtensionAPI) {
         closeSurface(surface);
         surface = null;
 
+        const sessionRef = subSessionFile
+          ? `\n\nSession: ${subSessionFile.path}`
+          : "";
         const resultText =
           exitCode !== 0
-            ? `Sub-agent exited with code ${exitCode}.\n\n${summary}`
-            : summary;
+            ? `Sub-agent exited with code ${exitCode}.\n\n${summary}${sessionRef}`
+            : `${summary}${sessionRef}`;
 
         return {
           content: [{ type: "text", text: resultText }],
@@ -344,17 +347,25 @@ export default function panelAgentsExtension(pi: ExtensionAPI) {
         return new Text(text, 0, 0);
       }
 
+      // Strip session path from summary for the preview (it's shown separately)
+      const sessionPath: string | undefined = details?.sessionFile;
+      const cleanSummary = summaryText.replace(/\n\nSession: .+$/, "");
       const preview =
-        expanded || summaryText.length <= 120
-          ? summaryText
-          : summaryText.slice(0, 120) + "…";
+        expanded || cleanSummary.length <= 120
+          ? cleanSummary
+          : cleanSummary.slice(0, 120) + "…";
+
+      const sessionLine = sessionPath
+        ? "\n" + theme.fg("dim", `Session: ${sessionPath}`)
+        : "";
 
       const text =
         theme.fg("success", "✓") +
         " " +
         theme.fg("toolTitle", theme.bold(name)) +
         theme.fg("dim", ` — completed (${elapsed})`) +
-        (preview ? "\n" + theme.fg("text", preview) : "");
+        (preview ? "\n" + theme.fg("text", preview) : "") +
+        sessionLine;
 
       return new Text(text, 0, 0);
     },
