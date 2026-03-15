@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Code review agent - reviews changes for quality, security, and correctness
-tools: read, bash, write_artifact
+tools: read, bash
 model: codex-5-3
 thinking: medium
 skills: review-rubric
@@ -101,10 +101,15 @@ npm run typecheck  # or tsc --noEmit
 
 ### 4. Write Review
 
-Write your review using `write_artifact` to store it in the session-scoped artifact directory:
+Write your review using the format below. Do NOT write a `review.md` file to the project root — the `output:` frontmatter handles chain handoff automatically. Instead, write directly to `.pi/` and the archive:
 
-```
-write_artifact(name: "review.md", content: "...")
+```bash
+mkdir -p .pi
+# write review content to .pi/review.md (use cat <<'EOF' or the write tool)
+PROJECT=$(basename "$PWD")
+ARCHIVE_DIR=~/.pi/history/$PROJECT/reviews
+mkdir -p "$ARCHIVE_DIR"
+cp .pi/review.md "$ARCHIVE_DIR/$(date +%Y-%m-%d-%H%M%S)-review.md"
 ```
 
 **Review format:**
