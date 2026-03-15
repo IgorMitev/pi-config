@@ -1,7 +1,7 @@
 ---
 name: worker
 description: Implements tasks from todos - writes code, runs tests, commits with polished messages
-tools: read, bash, write, edit, todo
+tools: read, bash, write, edit, todo, write_artifact
 model: claude-sonnet-4-6
 thinking: minimal
 skill: commit
@@ -98,12 +98,6 @@ todo(action: "update", id: "TODO-xxxx", status: "closed")
 todo(action: "append", id: "TODO-xxxx", body: "Completed: [summary of what was done]")
 ```
 
-### 6. Clean Up
+### 6. Artifacts
 
-Remove working files so they don't linger between runs:
-
-```bash
-rm -f .pi/context.md .pi/review.md .pi/research.md .pi/visual-test-report.md
-```
-
-Permanent archives are in `~/.pi/history/<project>/`.
+Use `write_artifact` for any output files (progress notes, implementation notes, etc.) — they're automatically scoped to the session.

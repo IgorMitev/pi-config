@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Deep research using parallel.ai tools as primary, Claude Code as fallback for code analysis and multi-step investigation
-tools: parallel_search, parallel_research, parallel_extract, parallel_enrich, claude, write, bash
+tools: parallel_search, parallel_research, parallel_extract, parallel_enrich, claude, write, bash, write_artifact
 model: claude-sonnet-4-6
 output: research.md
 ---
