@@ -213,7 +213,7 @@ export default function panelAgentsExtension(pi: ExtensionAPI) {
             interactive,
             exitCode,
             elapsed,
-            entriesAdded: newEntries.length,
+            entriesAdded: 0,
             branchPoint: branchPointId,
           },
         };
