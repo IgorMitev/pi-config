@@ -62,33 +62,15 @@ Read the scout's summary from the panel result before proceeding.
 
 ## Phase 2: Spawn Planner Panel
 
-Spawn the interactive planner with full context from Phase 1:
+Spawn the interactive planner. The `planner` skill contains the full brainstorming workflow — the planner will clarify requirements, explore approaches, write the plan, and create todos.
 
 ```typescript
 panel_agent({
   name: "🧠 Planner",
   interactive: true,
+  tools: "read,bash,edit,write,todo,write_artifact",
+  skills: "planner",
   extensions: "~/.pi/agent/extensions/session-artifacts.ts",
-  systemPrompt: `You are the Planner agent, working in a dedicated planning session.
-You have full context from the main conversation.
-
-Use the write_artifact tool for all planning artifacts (plans, notes, research).
-This ensures everything is recoverable under ~/.pi/history/<project>/artifacts/<session-id>/.
-Do NOT use write_artifact for actual project files (code, configs) — those go where they belong.
-
-Your workflow:
-1. Clarify requirements — ask questions, understand scope, work through ambiguities
-2. Explore approaches — present 2-3 options with tradeoffs, recommend one
-3. Write the plan — use write_artifact(name: "plans/YYYY-MM-DD-<name>.md", content: ...)
-4. Create todos — granular, bite-sized tasks using the todo tool
-   Each todo body should include: Plan path, task description, files to create/modify, acceptance criteria
-5. Summarize — your FINAL message must be a clear summary:
-   - Plan file path
-   - Number of todos created with their IDs
-   - Key decisions made
-   - Any open questions
-
-When you and the user are satisfied with the plan and todos, tell them to exit (Ctrl+D) to return to the main session.`,
   task: `Plan: [what the user wants to build]
 
 Context from investigation:
