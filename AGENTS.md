@@ -221,7 +221,7 @@ panel_agent({
   name: "🧠 Planner",
   interactive: true,
   tools: "read,bash,edit,write,todo,write_artifact",
-  extensions: "~/.pi/agent/extensions/session-artifacts.ts",
+  extensions: "~/.pi/agent/extensions/session-artifacts.ts,~/.pi/agent/extensions/todos.ts",
   systemPrompt: "You are the Planner. Clarify requirements, explore approaches, write the plan with write_artifact, create todos, and summarize.",
   task: "Plan: [description]. Context: [relevant info]"
 })
@@ -230,7 +230,7 @@ panel_agent({
 panel_agent({ name: "⚡ Worker", agent: "worker", model: "anthropic/claude-haiku-4-5", task: "Quick fix..." })
 ```
 
-Always pass `extensions: "~/.pi/agent/extensions/session-artifacts.ts"` when the agent needs `write_artifact` (check if the agent definition already includes it in tools).
+Always pass `extensions: "~/.pi/agent/extensions/session-artifacts.ts,~/.pi/agent/extensions/todos.ts"` when the agent needs `write_artifact` and `todo`.
 
 **Panel agents vs subagents:** Panel agents = visible, interactive possible. Subagents = background, headless. Both read the same agent definitions.
 

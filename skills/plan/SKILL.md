@@ -70,7 +70,7 @@ panel_agent({
   interactive: true,
   tools: "read,bash,edit,write,todo,write_artifact",
   skills: "planner",
-  extensions: "~/.pi/agent/extensions/session-artifacts.ts",
+  extensions: "~/.pi/agent/extensions/session-artifacts.ts,~/.pi/agent/extensions/todos.ts",
   task: `Plan: [what the user wants to build]
 
 Context from investigation:
