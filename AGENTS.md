@@ -212,7 +212,7 @@ The `agent` parameter loads defaults from `~/.pi/agent/agents/<name>.md` — sam
 // Use existing agent definitions — same configs as subagents, full transparency
 panel_agent({ name: "Scout", agent: "scout", interactive: false, task: "Analyze the codebase..." })
 panel_agent({ name: "Worker", agent: "worker", interactive: false, task: "Implement TODO-xxxx..." })
-panel_agent({ name: "Reviewer", agent: "reviewer", interactive: false, task: "Review feature branch..." })
+panel_agent({ name: "Reviewer", agent: "reviewer", interactive: false, task: "Review recent changes..." })
 panel_agent({ name: "Researcher", agent: "researcher", interactive: false, task: "Research [topic]..." })
 
 // Planner — interactive, loads config from ~/.pi/agent/agents/planner.md
@@ -281,9 +281,7 @@ panel_agent({
 
 #### Commits, Not Merges
 
-**Do NOT squash merge or merge feature branches back into main.** Work stays on the feature branch with individual, polished commits. Each completed todo should result in a well-crafted commit using the `commit` skill — every single time, no exceptions. The commit message should be descriptive and tell the story of what changed and why.
 
-**Never amend commits on `main` (or `master`).** Amending is only acceptable on feature branches. Before running `git commit --amend`, check the current branch — if it's `main` or `master`, create a new commit instead.
 
 #### When NOT to Delegate
 

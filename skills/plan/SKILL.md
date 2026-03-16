@@ -24,11 +24,9 @@ Phase 2: Spawn Planner Panel (interactive — user collaborates here)
     ↓
 Phase 3: Review Plan & Todos (main session)
     ↓
-Phase 4: Create Feature Branch
+Phase 4: Execute Todos (workers)
     ↓
-Phase 5: Execute Todos (workers)
-    ↓
-Phase 6: Review
+Phase 5: Review
 ```
 
 ---
@@ -97,17 +95,7 @@ Review with the user:
 
 ---
 
-## Phase 4: Create Feature Branch
-
-```bash
-git checkout -b feat/<short-descriptive-name>
-```
-
-Branch naming: `feat/<name>`, `fix/<name>`, `refactor/<name>`
-
----
-
-## Phase 5: Execute Todos
+## Phase 4: Execute Todos
 
 Use the scout → worker pattern from the subagents system:
 
@@ -149,10 +137,10 @@ After all todos are complete:
 
 ```typescript
 // Using subagent (background)
-subagent({ agent: "reviewer", task: "Review the feature branch against main. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" })
+subagent({ agent: "reviewer", task: "Review the recent changes. Plan: ~/.pi/history/<project>/plans/YYYY-MM-DD-feature.md" })
 
 // Or using panel agent (visible)
-panel_agent({ name: "Reviewer", agent: "reviewer", interactive: false, task: "Review the feature branch against main. Plan: ..." })
+panel_agent({ name: "Reviewer", agent: "reviewer", interactive: false, task: "Review the recent changes. Plan: ..." })
 ```
 
 Triage findings:
@@ -174,4 +162,3 @@ Before reporting done:
 3. ✅ Reviewer has run?
 4. ✅ Reviewer findings triaged and addressed?
 
-**Do NOT squash merge or merge the feature branch into main.**
