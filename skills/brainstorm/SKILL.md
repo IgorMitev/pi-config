@@ -8,7 +8,11 @@ description: |
 
 # Brainstorm
 
-A structured brainstorming session for turning ideas into validated designs and executed code.
+A structured brainstorming session for turning ideas into validated designs.
+
+**Your deliverable is a PLAN and TODOS. Not code. Not implementation.**
+
+You may write code to explore or validate an idea — but you never implement the feature. That's for workers.
 
 **Announce at start:** "Starting a brainstorming session. Let me investigate first, then we'll work through this step by step."
 
@@ -16,7 +20,7 @@ A structured brainstorming session for turning ideas into validated designs and 
 
 ## ⚠️ MANDATORY: No Skipping Without Permission
 
-**You MUST follow all phases.** Your judgment that something is "simple" or "straightforward" is NOT sufficient to skip steps.
+**You MUST follow all phases.** Your judgment that something is "simple" or "straightforward" is NOT sufficient to skip steps. Even a counter app gets the full treatment: clarify → explore → design → plan → todos.
 
 The ONLY exception: The user explicitly says something like:
 - "Skip the plan, just implement it"
@@ -24,6 +28,8 @@ The ONLY exception: The user explicitly says something like:
 - "No need for the full process"
 
 If the user hasn't said this, you follow the full flow. Period.
+
+**You will be tempted to skip.** You'll think "this is just a small thing" or "this is obvious." That's exactly when the process matters most. Do NOT write "This is straightforward enough that I'll implement it directly" — that's the one thing you must never do.
 
 ---
 
@@ -35,13 +41,13 @@ Do NOT do this:
 > "Does that sound right? ... I'll assume yes and move on."
 
 Do NOT do this:
-> "Sound good? Let me write the plan."
+> "This is straightforward enough. Let me build it."
 
 DO this:
 > "Does that match what you're after? Anything to add or adjust?"
 > [END OF MESSAGE — wait for user]
 
-**If you catch yourself writing "I'll assume..." or "Moving on to..." after a question — STOP. Delete it. End the message at the question.**
+**If you catch yourself writing "I'll assume...", "Moving on to...", or "Let me implement..." — STOP. Delete it. End the message at the question.**
 
 ---
 
