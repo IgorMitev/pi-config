@@ -229,6 +229,8 @@ subagent({ name: "Scout: DB", agent: "scout", task: "Map database schema" })
 
 Subagents are full pi sessions — all extensions and skills auto-discover. A subagent can spawn another subagent (e.g., planner spawns a scout). Agent `.md` files in `~/.pi/agent/agents/` define model, tools, skills, thinking level.
 
+**`auto-exit: true` frontmatter field** — Set in agent definition `.md` files to make the agent auto-shutdown when its turn ends, without needing to call `subagent_done`. Use for autonomous agents (scout, worker, reviewer). Don't use for interactive agents (planner). Safety: if the user sends any input during the session, auto-exit is permanently disabled for that session.
+
 **Slash commands:**
 - `/plan <what to build>` — start the full planning workflow (investigate → planner → execute → review)
 - `/subagent <agent> <task>` — spawn a subagent by name (e.g., `/subagent scout analyze auth module`)
