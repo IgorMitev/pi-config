@@ -7,6 +7,8 @@ sessions/
 bin/
 
 
+pi-crash.log
+
 # Pi runtime files (created when this repo is ~/.pi/agent/)
 git/
 mcp-cache.json

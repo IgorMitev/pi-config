@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "lmstudio": {
+      "baseUrl": "http://192.168.1.203:1234",
+      "api": "anthropic-messages",
+      "apiKey": "lm-studio",
+      "models": [
+        {
+          "id": "google/gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B (LM Studio)",
+          "reasoning": false,
+          "input": ["text", "image"],
+          "contextWindow": 128000,
+          "maxTokens": 8192,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
+        }
+      ]
+    }
+  }
+}

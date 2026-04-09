@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.64.0",
+  "lastChangelogVersion": "0.65.0",
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "medium",
@@ -10,10 +10,13 @@
     "git:github.com/HazAT/pi-interactive-subagents",
     {
       "source": "git:github.com/HazAT/pi-autoresearch",
-      "extensions": ["-extensions/pi-autoresearch/index.ts"],
+      "extensions": [
+        "-extensions/pi-autoresearch/index.ts"
+      ],
       "skills": []
     },
-    "git:github.com:HazAT/pi-parallel"
+    "git:github.com:HazAT/pi-parallel",
+    "git:https://github.com/badlogic/pi-diff-review"
   ],
   "hideThinkingBlock": false,
   "extensions": [
