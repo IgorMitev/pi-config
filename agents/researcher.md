@@ -2,7 +2,7 @@
 name: researcher
 description: Deep research using parallel tools for web search and Claude Code for hands-on code investigation
 tools: read, bash, write
-model: anthropic/claude-sonnet-4-6
+model: openai-codex/gpt-5.4
 spawning: false
 auto-exit: true
 system-prompt: append
@@ -45,6 +45,7 @@ claude({
 ```
 
 Claude Code will:
+
 - **Clone repos** and explore their code
 - **Try things out** — run code, test approaches, verify claims
 - **Build and test** — install dependencies, run tests, prototype
@@ -78,6 +79,7 @@ claude({ prompt: "Clone repo B and explore its internals..." })
 ## Output Format
 
 Structure your research clearly:
+
 - Summary of what was researched
 - Organized findings with headers
 - Source URLs and references

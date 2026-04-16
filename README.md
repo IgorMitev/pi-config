@@ -1,5 +1,7 @@
 # Pi Config
 
+The repo is a fork of [HazAT/pi-config](https://github.com/HazAT/pi-config), adapted for my workflow.
+
 My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) configuration — agents, skills, extensions, and prompts that shape how pi works for me.
 
 ## Setup
@@ -13,7 +15,7 @@ Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from
 
 # 2. Clone this repo as your agent config
 mkdir -p ~/.pi
-git clone git@github.com:HazAT/pi-config ~/.pi/agent
+git clone git@github.com:IgorMitev/pi-config ~/.pi/agent
 
 # 3. Run setup (installs packages + extension deps)
 cd ~/.pi/agent && ./setup.sh
@@ -48,69 +50,69 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 Specialized roles with baked-in identity, workflow, and review rubrics.
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| **planner** | Opus 4.6 | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout** | Haiku 4.5 | Fast codebase reconnaissance — gathers context without making changes |
-| **worker** | Sonnet 4.6 | Implements tasks from todos, commits with polished messages |
-| **reviewer** | Opus 4.6 | Reviews code for quality, security, correctness (review rubric baked in) |
-| **researcher** | Sonnet 4.6 | Deep research using parallel.ai tools + Claude Code for code analysis |
-| **visual-tester** | Sonnet 4.6 | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports |
-| **autoresearch** | Opus 4.6 | Autonomous experiment loop — runs, measures, and optimizes iteratively |
+| Agent             | Model        | Purpose                                                                                 |
+| ----------------- | ------------ | --------------------------------------------------------------------------------------- |
+| **planner**       | GPT 5.4      | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout**         | GPT 5.4 Mini | Fast codebase reconnaissance — gathers context without making changes                   |
+| **worker**        | GPT 5.4      | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 5.4      | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **researcher**    | GPT 5.4      | Deep research using parallel.ai tools + Claude Code for code analysis                   |
+| **visual-tester** | GPT 5.4      | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
+| **autoresearch**  | GPT 5.4      | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
 
 ## Skills
 
 Loaded on-demand when the context matches.
 
-| Skill | When to Load |
-|-------|-------------|
-| **commit** | Making git commits (mandatory for every commit) |
-| **code-simplifier** | Simplifying or cleaning up code |
-| **frontend-design** | Building web components, pages, or apps |
-| **github** | Working with GitHub via `gh` CLI |
-| **iterate-pr** | Iterating on a PR until CI passes |
-| **learn-codebase** | Onboarding to a new project, checking conventions |
-| **session-reader** | Reading and analyzing pi session JSONL files |
-| **skill-creator** | Scaffolding new agent skills |
-| **cmux** | Managing terminal sessions via cmux |
-| **presentation-creator** | Creating data-driven presentation slides |
-| **add-mcp-server** | Adding MCP server configurations |
+| Skill                    | When to Load                                      |
+| ------------------------ | ------------------------------------------------- |
+| **commit**               | Making git commits (mandatory for every commit)   |
+| **code-simplifier**      | Simplifying or cleaning up code                   |
+| **frontend-design**      | Building web components, pages, or apps           |
+| **github**               | Working with GitHub via `gh` CLI                  |
+| **iterate-pr**           | Iterating on a PR until CI passes                 |
+| **learn-codebase**       | Onboarding to a new project, checking conventions |
+| **session-reader**       | Reading and analyzing pi session JSONL files      |
+| **skill-creator**        | Scaffolding new agent skills                      |
+| **cmux**                 | Managing terminal sessions via cmux               |
+| **presentation-creator** | Creating data-driven presentation slides          |
+| **add-mcp-server**       | Adding MCP server configurations                  |
 
 ## Extensions
 
-| Extension | What it provides |
-|-----------|------------------|
-| **answer/** | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
-| **claude-tool/** | `claude` tool — invoke Claude Code for autonomous tasks |
-| **cmux/** | cmux integration — notifications, sidebar, workspace tools |
-| **cost/** | `/cost` command — API cost summary |
-| **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands |
-| **todos/** | `/todos` command + `todo` tool — file-based todo management |
+| Extension            | What it provides                                                          |
+| -------------------- | ------------------------------------------------------------------------- |
+| **answer/**          | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
+| **claude-tool/**     | `claude` tool — invoke Claude Code for autonomous tasks                   |
+| **cmux/**            | cmux integration — notifications, sidebar, workspace tools                |
+| **cost/**            | `/cost` command — API cost summary                                        |
+| **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands        |
+| **todos/**           | `/todos` command + `todo` tool — file-based todo management               |
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `/plan <description>` | Start a planning session — spawns planner subagent, then orchestrates execution |
-| `/subagent <agent> <task>` | Spawn a subagent (e.g., `/subagent scout analyze the auth module`) |
-| `/iterate [task]` | Fork session into interactive subagent for quick fixes |
-| `/answer` | Extract questions into interactive Q&A |
-| `/todos` | Visual todo manager |
-| `/cost` | API cost summary |
+| Command                    | Description                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| `/plan <description>`      | Start a planning session — spawns planner subagent, then orchestrates execution |
+| `/subagent <agent> <task>` | Spawn a subagent (e.g., `/subagent scout analyze the auth module`)              |
+| `/iterate [task]`          | Fork session into interactive subagent for quick fixes                          |
+| `/answer`                  | Extract questions into interactive Q&A                                          |
+| `/todos`                   | Visual todo manager                                                             |
+| `/cost`                    | API cost summary                                                                |
 
 ## Packages
 
 Installed via `pi install`, managed in `settings.json`.
 
-| Package | Description |
-|---------|-------------|
+| Package                                                                       | Description                                                |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands |
-| [pi-parallel](https://github.com/HazAT/pi-parallel) | Parallel web search, extract, research, and enrich tools |
-| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions) | AI-generated session names |
-| [pi-autoresearch](https://github.com/HazAT/pi-autoresearch) | Autonomous experiment loop with dashboard |
-| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) | MCP server integration |
-| [glimpse](https://github.com/HazAT/glimpse) | Native macOS UI — dialogs, forms, visualizations |
-| [chrome-cdp-skill](https://github.com/pasky/chrome-cdp-skill) | Chrome DevTools Protocol CLI for visual testing |
+| [pi-parallel](https://github.com/HazAT/pi-parallel)                           | Parallel web search, extract, research, and enrich tools   |
+| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                 |
+| [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Autonomous experiment loop with dashboard                  |
+| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                     |
+| [glimpse](https://github.com/HazAT/glimpse)                                   | Native macOS UI — dialogs, forms, visualizations           |
+| [chrome-cdp-skill](https://github.com/pasky/chrome-cdp-skill)                 | Chrome DevTools Protocol CLI for visual testing            |
 
 ---
 
