@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.67.5",
+  "lastChangelogVersion": "0.67.68",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4-mini",
   "defaultThinkingLevel": "medium",
@@ -23,5 +23,6 @@
   "extensions": [
     "+extensions/cmux/index.ts",
     "+extensions/claude-tool/index.ts"
-  ]
+  ],
+  "theme": "nord"
 }
