@@ -17,7 +17,7 @@ Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from
 mkdir -p ~/.pi
 git clone git@github.com:IgorMitev/pi-config ~/.pi/agent
 
-# 3. Run setup (installs packages + extension deps)
+# 3. Run setup (installs packages)
 cd ~/.pi/agent && ./setup.sh
 
 # 4. Add your API keys to ~/.pi/agent/auth.json
@@ -56,7 +56,7 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 | **scout**         | GPT 5.4 Mini | Fast codebase reconnaissance — gathers context without making changes                   |
 | **worker**        | GPT 5.4      | Implements tasks from todos, commits with polished messages                             |
 | **reviewer**      | GPT 5.4      | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.4      | Deep research using parallel.ai tools + Claude Code for code analysis                   |
+| **researcher**    | GPT 5.4      | Deep research using parallel.ai tools + pi subagents for code investigation             |
 | **visual-tester** | GPT 5.4      | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 | **autoresearch**  | GPT 5.4      | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
 
@@ -83,7 +83,6 @@ Loaded on-demand when the context matches.
 | Extension            | What it provides                                                          |
 | -------------------- | ------------------------------------------------------------------------- |
 | **answer/**          | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
-| **claude-tool/**     | `claude` tool — invoke Claude Code for autonomous tasks                   |
 | **cmux/**            | cmux integration — notifications, sidebar, workspace tools                |
 | **cost/**            | `/cost` command — API cost summary                                        |
 | **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands        |

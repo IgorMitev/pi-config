@@ -165,7 +165,7 @@ Avoid shotgun debugging ("let me try this... nope, what about this..."). If you'
 | `scout` | Fast codebase reconnaissance | Haiku (fast, cheap) |
 | `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | Sonnet 4.6 |
 | `reviewer` | Reviews code for quality/security | Codex 5.3 |
-| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) and Claude Code for hands-on code investigation | Sonnet 4.6 |
+| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | Sonnet 4.6 |
 
 #### Orchestration Mindset
 
@@ -201,7 +201,7 @@ subagent({ name: "💬 Planner", agent: "planner", interactive: true, task: "Pla
 subagent({ name: "Iterate", fork: true, task: "Fix the bug where..." })
 
 // Override agent defaults when needed
-subagent({ name: "Worker", agent: "worker", model: "anthropic/claude-haiku-4-5", task: "Quick fix..." })
+subagent({ name: "Worker", agent: "worker", model: "openai/gpt-5.4-mini", task: "Quick fix..." })
 
 // Parallel execution — just call subagent multiple times, they all run concurrently
 subagent({ name: "Scout: Auth", agent: "scout", task: "Analyze auth module" })
@@ -238,7 +238,7 @@ subagent({
 - **Worker reports missing context** → Provide the missing examples/references, update the todo, re-spawn the worker
 - **Code review needed** → Delegate to `reviewer`
 - **Need context first** → Start with `scout`
-- **Web research or external info needed** → Delegate to `researcher` (uses parallel tools for web search/synthesis, Claude Code for hands-on code exploration)
+- **Web research or external info needed** → Delegate to `researcher` (uses parallel tools for web search/synthesis and pi subagents for hands-on code exploration)
 
 #### When NOT to Delegate
 

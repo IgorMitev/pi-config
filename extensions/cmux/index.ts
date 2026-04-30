@@ -41,7 +41,7 @@ function formatCost(n: number): string {
 }
 
 function shortModel(id: string): string {
-  // Strip common prefixes: "claude-" etc., keep it readable
+  // Strip noisy provider/model prefixes, keep it readable
   return id
     .replace(/^claude-/, "")
     .replace(/-\d{8}$/, "");

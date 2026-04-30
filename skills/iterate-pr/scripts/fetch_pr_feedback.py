@@ -35,9 +35,9 @@ from typing import Any
 # Bots that provide actionable code review feedback.
 # Their comments are categorized by content, not skipped.
 REVIEW_BOT_PATTERNS = [
+    r"(?i)^claude",
     r"(?i)^copilot",
     r"(?i)^codex",
-    r"(?i)^claude",
     r"(?i)^codeql",
     r"(?i)^sonarcloud",
     r"(?i)^deepsource",
