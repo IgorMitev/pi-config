@@ -160,12 +160,12 @@ Avoid shotgun debugging ("let me try this... nope, what about this..."). If you'
 
 | Agent | Purpose | Model |
 |-------|---------|-------|
-| `spec` | Interactive spec agent — clarifies WHAT to build (intent, requirements, effort level, ISC). Produces a spec artifact. | Opus 4.6 (medium thinking) |
-| `planner` | Interactive planning agent — takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos. | Opus 4.6 (medium thinking) |
-| `scout` | Fast codebase reconnaissance | Haiku (fast, cheap) |
-| `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | Sonnet 4.6 |
-| `reviewer` | Reviews code for quality/security | Codex 5.3 |
-| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | Sonnet 4.6 |
+| `spec` | Interactive spec agent — clarifies WHAT to build (intent, requirements, effort level, ISC). Produces a spec artifact. | GPT-5.4 (medium thinking) |
+| `planner` | Interactive planning agent — takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos. | GPT-5.4 (medium thinking) |
+| `scout` | Fast codebase reconnaissance | GPT-5.4 Mini (fast, cheap) |
+| `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | GPT-5.4 |
+| `reviewer` | Reviews code for quality/security | GPT-5.4 |
+| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | GPT-5.4 |
 
 #### Orchestration Mindset
 
