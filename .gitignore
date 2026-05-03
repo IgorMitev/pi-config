@@ -5,7 +5,8 @@ auth.json
 .pi/
 sessions/
 bin/
-
+plans/
+specs/
 
 pi-crash.log
 
