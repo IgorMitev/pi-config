@@ -8,6 +8,8 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
+Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.5`, and `setup.sh` bootstraps new installs with Codex defaults.
+
 ### Fresh machine
 
 ```bash
@@ -30,6 +32,10 @@ cd ~/.pi/agent && ./setup.sh
 ```bash
 cd ~/.pi/agent && git pull
 ```
+
+### Optional local models via LM Studio
+
+`models.json` includes an optional `lmstudio` provider for local models. Its `api: "anthropic-messages"` value is a wire-protocol compatibility setting for LM Studio, not this repo's default provider or model family.
 
 ---
 
