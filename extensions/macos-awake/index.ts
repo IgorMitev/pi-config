@@ -54,7 +54,7 @@ export default function macosAwake(pi: ExtensionAPI) {
   });
 
   pi.registerCommand("awake-status", {
-    description: "Show whether the macOS caffeinate assertion is active for the current Pi task.",
+    description: "Show whether the macOS idle-sleep prevention assertion is active for the current Pi task.",
     handler: async (_args, ctx) => {
       if (process.platform !== "darwin") {
         ctx.ui.notify("macOS awake extension is inactive on this platform.", "info");
@@ -63,8 +63,8 @@ export default function macosAwake(pi: ExtensionAPI) {
 
       ctx.ui.notify(
         isRunning()
-          ? `macOS awake assertion active: caffeinate ${CAFFEINATE_ARGS.join(" ")}`
-          : "macOS awake assertion inactive; it only runs while Pi is processing a task.",
+          ? `macOS idle-sleep prevention active: caffeinate ${CAFFEINATE_ARGS.join(" ")}. Display sleep and explicit Sleep still work.`
+          : "macOS idle-sleep prevention inactive; it only runs while Pi is processing a task.",
         "info",
       );
     },
