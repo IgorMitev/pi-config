@@ -92,6 +92,7 @@ Loaded on-demand when the context matches.
 | **cmux/**            | cmux integration — notifications, sidebar, workspace tools                |
 | **cost/**            | `/cost` command — API cost summary                                        |
 | **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands        |
+| **macos-awake/**     | Keeps macOS awake during active agent tasks with `caffeinate -ims`         |
 | **todos/**           | `/todos` command + `todo` tool — file-based todo management               |
 
 ## Commands
@@ -104,6 +105,7 @@ Loaded on-demand when the context matches.
 | `/answer`                  | Extract questions into interactive Q&A                                          |
 | `/todos`                   | Visual todo manager                                                             |
 | `/cost`                    | API cost summary                                                                |
+| `/awake-status`            | Show whether the macOS awake assertion is active for the current task            |
 
 ## Packages
 
