@@ -8,7 +8,7 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
-Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.5`, and `setup.sh` bootstraps new installs with Codex defaults.
+Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.5` and low thinking, and `setup.sh` bootstraps new installs with the same Codex defaults.
 
 ### Fresh machine
 
@@ -56,15 +56,16 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 Specialized roles with baked-in identity, workflow, and review rubrics.
 
-| Agent             | Model        | Purpose                                                                                 |
-| ----------------- | ------------ | --------------------------------------------------------------------------------------- |
-| **planner**       | GPT 5.4      | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout**         | GPT 5.4 Mini | Fast codebase reconnaissance — gathers context without making changes                   |
-| **worker**        | GPT 5.4      | Implements tasks from todos, commits with polished messages                             |
-| **reviewer**      | GPT 5.4      | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.4      | Deep research using parallel.ai tools + pi subagents for code investigation             |
-| **visual-tester** | GPT 5.4      | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
-| **autoresearch**  | GPT 5.4      | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
+| Agent             | Model                    | Purpose                                                                                 |
+| ----------------- | ------------------------ | --------------------------------------------------------------------------------------- |
+| **spec**          | GPT 5.4 (medium)         | Interactive specification — clarify intent, requirements, effort, success criteria      |
+| **planner**       | GPT 5.5 (low)            | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout**         | GPT 5.4 Mini             | Fast codebase reconnaissance — gathers context without making changes                   |
+| **worker**        | GPT 5.5 (low)            | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 5.5 (low)            | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **researcher**    | GPT 5.5                  | Deep research using parallel.ai tools + pi subagents for code investigation             |
+| **visual-tester** | GPT 5.4                  | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
+| **autoresearch**  | GPT 5.5 (low)            | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
 
 ## Skills
 

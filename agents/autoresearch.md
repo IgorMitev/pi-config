@@ -2,8 +2,8 @@
 name: autoresearch
 description: Autonomous experiment worker — runs a batch of autoresearch experiments, then self-terminates
 tools: read, bash, write, edit
-model: openai-codex/gpt-5.4
-thinking: medium
+model: openai-codex/gpt-5.5
+thinking: low
 spawning: true
 auto-exit: true
 system-prompt: append
