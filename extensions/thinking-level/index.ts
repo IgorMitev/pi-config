@@ -43,12 +43,8 @@ function saveState(state: PersistedState): void {
 export default function thinkingLevelExtension(pi: ExtensionAPI) {
 	let preferredLevel: ThinkingLevel | undefined;
 
-	function setStatus(ctx: ExtensionContext, level: ThinkingLevel) {
-		ctx.ui.setStatus(STATUS_KEY, `thinking:${level}`);
-	}
-
-	function refreshStatus(ctx: ExtensionContext) {
-		setStatus(ctx, pi.getThinkingLevel());
+	function clearStatus(ctx: ExtensionContext) {
+		ctx.ui.setStatus(STATUS_KEY, undefined);
 	}
 
 	async function openPicker(ctx: ExtensionContext) {
@@ -93,14 +89,14 @@ export default function thinkingLevelExtension(pi: ExtensionAPI) {
 		if (preferredLevel) {
 			pi.setThinkingLevel(preferredLevel);
 		}
-		refreshStatus(ctx);
+		clearStatus(ctx);
 	});
 
-	pi.on("thinking_level_select", async (event, ctx) => {
-		setStatus(ctx, event.level);
+	pi.on("thinking_level_select", async (_event, ctx) => {
+		clearStatus(ctx);
 	});
 
 	pi.on("model_select", async (_event, ctx) => {
-		refreshStatus(ctx);
+		clearStatus(ctx);
 	});
 }

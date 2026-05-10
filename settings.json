@@ -23,5 +23,6 @@
   "extensions": [
     "+extensions/cmux/index.ts"
   ],
-  "theme": "synthwave"
+  "theme": "everforest",
+  "treeFilterMode": "default"
 }
