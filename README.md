@@ -58,11 +58,11 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 
 | Agent             | Model                    | Purpose                                                                                 |
 | ----------------- | ------------------------ | --------------------------------------------------------------------------------------- |
-| **spec**          | GPT 5.4 (medium)         | Interactive specification — clarify intent, requirements, effort, success criteria      |
-| **planner**       | GPT 5.5 (low)            | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **spec**          | GPT 5.5 (medium)         | Interactive specification — clarify intent, requirements, effort, success criteria      |
+| **planner**       | GPT 5.5 (medium)         | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
 | **scout**         | GPT 5.4 Mini             | Fast codebase reconnaissance — gathers context without making changes                   |
-| **worker**        | GPT 5.5 (low)            | Implements tasks from todos, commits with polished messages                             |
-| **reviewer**      | GPT 5.5 (low)            | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **worker**        | GPT 5.5 (medium)         | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 5.5 (medium)         | Reviews code for quality, security, correctness (review rubric baked in)                |
 | **researcher**    | GPT 5.5                  | Deep research using parallel.ai tools + pi subagents for code investigation             |
 | **visual-tester** | GPT 5.4                  | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 | **autoresearch**  | GPT 5.5 (low)            | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
