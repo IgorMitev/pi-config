@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
 	getAgentDir,
@@ -12,36 +12,22 @@ type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
 const STATUS_KEY = "thinking-level";
 const SHORTCUT = "ctrl+shift+t";
 const LEVELS: ThinkingLevel[] = ["off", "minimal", "low", "medium", "high", "xhigh"];
-const STATE_PATH = join(getAgentDir(), "extensions", "thinking-level", "state.json");
-
-interface PersistedState {
-	preferredLevel?: ThinkingLevel;
-}
+const SETTINGS_PATH = join(getAgentDir(), "settings.json");
 
 function isThinkingLevel(value: unknown): value is ThinkingLevel {
 	return typeof value === "string" && LEVELS.includes(value as ThinkingLevel);
 }
 
-function loadState(): PersistedState {
-	if (!existsSync(STATE_PATH)) return {};
-
+function loadDefaultThinkingLevel(): ThinkingLevel | undefined {
 	try {
-		const parsed = JSON.parse(readFileSync(STATE_PATH, "utf8")) as PersistedState;
-		return isThinkingLevel(parsed.preferredLevel) ? parsed : {};
+		const parsed = JSON.parse(readFileSync(SETTINGS_PATH, "utf8")) as { defaultThinkingLevel?: unknown };
+		return isThinkingLevel(parsed.defaultThinkingLevel) ? parsed.defaultThinkingLevel : undefined;
 	} catch {
-		return {};
+		return undefined;
 	}
 }
 
-function saveState(state: PersistedState): void {
-	mkdirSync(join(getAgentDir(), "extensions", "thinking-level"), { recursive: true });
-	const tempPath = `${STATE_PATH}.tmp`;
-	writeFileSync(tempPath, JSON.stringify(state, null, 2) + "\n", "utf8");
-	renameSync(tempPath, STATE_PATH);
-}
-
 export default function thinkingLevelExtension(pi: ExtensionAPI) {
-	let preferredLevel: ThinkingLevel | undefined;
 
 	function clearStatus(ctx: ExtensionContext) {
 		ctx.ui.setStatus(STATUS_KEY, undefined);
@@ -72,10 +58,6 @@ export default function thinkingLevelExtension(pi: ExtensionAPI) {
 
 		if (!selected) return;
 
-		// Persist the user's preferred level, but let pi report the effective level
-		// through thinking_level_select so model capability clamping is reflected in UI.
-		preferredLevel = selected;
-		saveState({ preferredLevel });
 		pi.setThinkingLevel(selected);
 	}
 
@@ -85,9 +67,9 @@ export default function thinkingLevelExtension(pi: ExtensionAPI) {
 	});
 
 	pi.on("session_start", async (_event, ctx) => {
-		preferredLevel = loadState().preferredLevel;
-		if (preferredLevel) {
-			pi.setThinkingLevel(preferredLevel);
+		const defaultThinkingLevel = loadDefaultThinkingLevel();
+		if (defaultThinkingLevel) {
+			pi.setThinkingLevel(defaultThinkingLevel);
 		}
 		clearStatus(ctx);
 	});
