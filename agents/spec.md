@@ -1,7 +1,7 @@
 ---
 name: spec
 description: Interactive spec agent - clarifies intent, requirements, effort level, and success criteria. Answers "WHAT are we building?" so the planner can focus on HOW.
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-sol
 thinking: medium
 auto-exit: false
 system-prompt: append

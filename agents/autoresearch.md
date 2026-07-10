@@ -2,7 +2,7 @@
 name: autoresearch
 description: Autonomous experiment worker — runs a batch of autoresearch experiments, then self-terminates
 tools: read, bash, write, edit
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-luna
 thinking: low
 spawning: true
 auto-exit: true

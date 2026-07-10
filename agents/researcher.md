@@ -2,7 +2,8 @@
 name: researcher
 description: Deep research using parallel tools for web search and pi subagents for codebase investigation
 tools: read, bash, write
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-terra
+thinking: medium
 spawning: false
 auto-exit: true
 system-prompt: append

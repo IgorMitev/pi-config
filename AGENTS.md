@@ -160,12 +160,14 @@ Avoid shotgun debugging ("let me try this... nope, what about this..."). If you'
 
 | Agent | Purpose | Model |
 |-------|---------|-------|
-| `spec` | Interactive spec agent — clarifies WHAT to build (intent, requirements, effort level, ISC). Produces a spec artifact. | GPT-5.4 (medium thinking) |
-| `planner` | Interactive planning agent — takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos. | GPT-5.5 (low thinking) |
-| `scout` | Fast codebase reconnaissance | GPT-5.4 Mini (fast, cheap) |
-| `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | GPT-5.5 (low thinking) |
-| `reviewer` | Reviews code for quality/security | GPT-5.5 (low thinking) |
-| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | GPT-5.5 |
+| `spec` | Interactive spec agent — clarifies WHAT to build (intent, requirements, effort level, ISC). Produces a spec artifact. | GPT-5.6 Sol (medium thinking) |
+| `planner` | Interactive planning agent — takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos. | GPT-5.6 Sol (high thinking) |
+| `scout` | Fast codebase reconnaissance | GPT-5.6 Luna (low thinking) |
+| `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | GPT-5.6 Sol (medium thinking) |
+| `reviewer` | Reviews code for quality/security | GPT-5.6 Sol (high thinking) |
+| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | GPT-5.6 Terra (medium thinking) |
+| `visual-tester` | Visual QA for web UIs using Chrome CDP | GPT-5.6 Terra (low thinking) |
+| `autoresearch` | Autonomous experiment runner | GPT-5.6 Luna (low thinking) |
 
 #### Orchestration Mindset
 
@@ -201,7 +203,7 @@ subagent({ name: "💬 Planner", agent: "planner", interactive: true, task: "Pla
 subagent({ name: "Iterate", fork: true, task: "Fix the bug where..." })
 
 // Override agent defaults when needed
-subagent({ name: "Worker", agent: "worker", model: "openai-codex/gpt-5.5", task: "Quick fix..." })
+subagent({ name: "Worker", agent: "worker", model: "openai-codex/gpt-5.6-sol", task: "Quick fix..." })
 
 // Parallel execution — just call subagent multiple times, they all run concurrently
 subagent({ name: "Scout: Auth", agent: "scout", task: "Analyze auth module" })
