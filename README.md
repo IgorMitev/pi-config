@@ -24,7 +24,11 @@ cd ~/.pi/agent && ./setup.sh
 
 # 4. Add your API keys to ~/.pi/agent/auth.json
 
-# 5. Restart pi
+# 5. Install and authenticate the Tavily CLI for web research
+curl -fsSL https://cli.tavily.com/install.sh | bash
+tvly login
+
+# 6. Restart pi
 ```
 
 ### Updating
@@ -63,7 +67,7 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 | **scout**         | GPT 5.6 Luna (low)     | Fast codebase reconnaissance — gathers context without making changes                   |
 | **worker**        | GPT 5.6 Sol (medium)   | Implements tasks from todos, commits with polished messages                             |
 | **reviewer**      | GPT 5.6 Sol (high)     | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.6 Terra (medium) | Deep research using parallel.ai tools + pi subagents for code investigation             |
+| **researcher**    | GPT 5.6 Terra (medium) | Deep research using Tavily-backed web tools + pi subagents for code investigation       |
 | **visual-tester** | GPT 5.6 Terra (low)    | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 | **autoresearch**  | GPT 5.6 Luna (low)     | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
 
@@ -94,6 +98,7 @@ Loaded on-demand when the context matches.
 | **cost/**            | `/cost` command — API cost summary                                        |
 | **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands        |
 | **macos-awake/**     | Prevents idle system sleep during active agent tasks with `caffeinate -ims`; display sleep and explicit Sleep still work |
+| **tavily/**          | `web_search`, `web_fetch`, and `deep_research` tools backed by the Tavily CLI |
 | **todos/**           | `/todos` command + `todo` tool — file-based todo management               |
 
 ## Commands
@@ -107,6 +112,8 @@ Loaded on-demand when the context matches.
 | `/todos`                   | Visual todo manager                                                             |
 | `/cost`                    | API cost summary                                                                |
 | `/awake-status`            | Show whether the macOS idle-sleep assertion is active for the current task       |
+| `/tavily-setup`            | Check whether the Tavily CLI is installed and authenticated                      |
+| `/tavily-status`           | Check whether the Tavily CLI is installed and authenticated                      |
 
 ## Packages
 
@@ -115,7 +122,6 @@ Installed via `pi install`, managed in `settings.json`.
 | Package                                                                       | Description                                                |
 | ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands |
-| [pi-parallel](https://github.com/HazAT/pi-parallel)                           | Parallel web search, extract, research, and enrich tools   |
 | [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                 |
 | [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Autonomous experiment loop with dashboard                  |
 | [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                     |
