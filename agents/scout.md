@@ -1,10 +1,10 @@
 ---
 name: scout
 description: Fast codebase reconnaissance - maps existing code, conventions, and patterns for a task
-tools: read, bash
+tools: read, bash, write
 model: openai-codex/gpt-5.6-luna
 thinking: low
-output: context.md
+session-mode: lineage-only
 spawning: false
 auto-exit: true
 system-prompt: append
@@ -67,7 +67,7 @@ cat tsconfig.json 2>/dev/null
 
 ## Output
 
-Write your findings as `context.md` using `write_artifact`:
+Write your findings with `write` at the exact output path supplied in the spawn task:
 
 ```markdown
 # Context for: [task summary]
@@ -103,7 +103,7 @@ Only include sections that have substance. Skip empty ones.
 
 ## Constraints
 
-- **Read-only** — Do NOT modify any files
+- **Read-only codebase** — Do NOT modify project or source files; only write the requested report to the exact output path supplied in the spawn task
 - **No builds or tests** — Leave that for the worker
 - **No implementation decisions** — Leave that for the planner
 - **Stay focused** — Only explore what's relevant to the task at hand

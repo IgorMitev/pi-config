@@ -1,9 +1,10 @@
 ---
 name: reviewer
 description: Code review agent - reviews changes for quality, security, and correctness
-tools: read, bash
+tools: read, bash, write
 model: openai-codex/gpt-5.6-sol
 thinking: high
+session-mode: lineage-only
 spawning: false
 auto-exit: true
 system-prompt: append
@@ -34,15 +35,17 @@ Read the task to understand what was built and what approach was chosen. If a pl
 
 ### 2. Examine the Changes
 
+The spawn task must identify the exact base ref, commit range, or working-tree scope to review. Do not guess the review boundary.
+
 ```bash
 # See recent commits
 git log --oneline -10
 
-# Diff against the base
-git diff HEAD~N  # where N = number of commits in the implementation
+# Diff the exact range supplied by the task
+git diff <base>...<head>
 ```
 
-Adjust based on what the task says to review.
+Adjust only within the supplied review scope.
 
 ### 3. Run Tests (if applicable)
 
@@ -53,8 +56,10 @@ npm run typecheck 2>/dev/null
 
 ### 4. Write Review
 
+Use `write` at the exact report path supplied in the task:
+
 ```
-write_artifact(name: "review.md", content: "...")
+write(path: ".pi/plans/YYYY-MM-DD-<name>/review.md", content: "...")
 ```
 
 **Format:**

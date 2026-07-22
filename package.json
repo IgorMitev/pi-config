@@ -2,6 +2,9 @@
   "name": "pi-config",
   "version": "1.0.0",
   "description": "Personal pi coding agent configuration — clone to ~/.pi/agent/",
+  "scripts": {
+    "validate:agents": "python3 scripts/validate-agents.py"
+  },
   "keywords": ["pi-package"],
   "author": "HazAT",
   "license": "MIT"

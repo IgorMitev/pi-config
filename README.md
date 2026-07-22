@@ -37,6 +37,14 @@ tvly login
 cd ~/.pi/agent && git pull
 ```
 
+### Validate agent definitions
+
+```bash
+npm run validate:agents
+```
+
+The validator checks supported frontmatter, effective tool and skill references, spawning constraints, unavailable artifact APIs, and required agents.
+
 ### Optional local models via LM Studio
 
 `models.json` includes an optional `lmstudio` provider for local models. Its `api: "anthropic-messages"` value is a wire-protocol compatibility setting for LM Studio, not this repo's default provider or model family.
@@ -49,8 +57,8 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 ### Key Concepts
 
-- **Subagents** — visible cmux terminals running pi. Autonomous agents self-terminate via `subagent_done`. Interactive agents wait for the user.
-- **Agent definitions** (`agents/*.md`) — one source of truth for model, tools, skills, and identity per role.
+- **Subagents** — visible cmux terminals running pi. Autonomous agents use `auto-exit`; interactive agents finish with `subagent_done` after user collaboration.
+- **Agent definitions** (`agents/*.md`) — one source of truth for model, effective tools, skills, and identity per role. A hidden global override suppresses the package-bundled Claude agent.
 - **Plan workflow** — `/plan` spawns an interactive planner subagent, then orchestrates workers and reviewers.
 - **Iterate pattern** — `/iterate` forks the session into a subagent for quick fixes without polluting the main context.
 
@@ -67,9 +75,8 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 | **scout**         | GPT 5.6 Luna (low)     | Fast codebase reconnaissance — gathers context without making changes                   |
 | **worker**        | GPT 5.6 Sol (medium)   | Implements tasks from todos, commits with polished messages                             |
 | **reviewer**      | GPT 5.6 Sol (high)     | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.6 Terra (medium) | Deep research using Tavily-backed web tools + pi subagents for code investigation       |
+| **researcher**    | GPT 5.6 Terra (medium) | Deep research using Tavily-backed web tools and bounded local inspection                |
 | **visual-tester** | GPT 5.6 Terra (low)    | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
-| **autoresearch**  | GPT 5.6 Luna (low)     | Autonomous experiment loop — runs, measures, and optimizes iteratively                  |
 
 ## Skills
 
@@ -123,7 +130,7 @@ Installed via `pi install`, managed in `settings.json`.
 | ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands |
 | [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                 |
-| [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Autonomous experiment loop with dashboard                  |
+| [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Installed but disabled because its required runtime APIs are unavailable |
 | [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                     |
 | [glimpse](https://github.com/HazAT/glimpse)                                   | Native macOS UI — dialogs, forms, visualizations           |
 | [chrome-cdp-skill](https://github.com/pasky/chrome-cdp-skill)                 | Chrome DevTools Protocol CLI for visual testing            |

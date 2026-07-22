@@ -36,6 +36,7 @@ Every line has a `type` field:
 | `model_change` | Model switch event | `provider`, `modelId` |
 | `thinking_level_change` | Thinking mode change | `thinkingLevel` |
 | `message` | Conversation content | `message: {role, content, ...}` |
+| `custom_message` | Extension event, including async subagent completion | `customType`, `content`, `details` |
 
 ## Message Structure
 
@@ -106,16 +107,62 @@ The `content` field is an array of typed objects:
 
 ## Subagent Sessions
 
-When the main agent delegates to subagents (worker, reviewer, scout), the subagent `toolResult` contains rich metadata in a `details` field.
+Current async subagents produce two records: a launch acknowledgement and a later completion event. Older sessions may instead contain one aggregate tool result.
 
-### Subagent toolResult Structure
+### Current launch acknowledgement
+
+The launch is a normal nested `message` whose `details` directly describe one run:
+
+```json
+{
+  "type": "message",
+  "message": {
+    "role": "toolResult",
+    "toolName": "subagent",
+    "details": {
+      "id": "ff90278e",
+      "name": "Agent config audit",
+      "task": "Review the configured agents",
+      "agent": "reviewer",
+      "sessionFile": "~/.pi/agent/sessions/<project>/<child>.jsonl",
+      "status": "started"
+    }
+  }
+}
+```
+
+`subagent_resume` uses the same direct-details shape.
+
+### Current completion event
+
+Completion arrives as a top-level custom message, not a nested conversation message:
+
+```json
+{
+  "type": "custom_message",
+  "customType": "subagent_result",
+  "content": "Sub-agent completed...",
+  "details": {
+    "name": "Agent config audit",
+    "task": "Review the configured agents",
+    "agent": "reviewer",
+    "exitCode": 0,
+    "elapsed": 253,
+    "sessionFile": "~/.pi/agent/sessions/<project>/<child>.jsonl"
+  }
+}
+```
+
+Match launch and completion primarily by `sessionFile`. `elapsed` is in seconds. A `subagent_ping` is a terminal “needs help” state for the original launch; a later resume is a new invocation using the same session path. Ignore `subagent_status` when collecting runs.
+
+### Legacy aggregate format
+
+Older sessions store `details.mode` and `details.results[]` on the nested `subagent` tool result:
 
 ```json
 {
   "role": "toolResult",
-  "toolCallId": "toolu_xxx",
   "toolName": "subagent",
-  "content": [{"type": "text", "text": "Done. Added the Workflow link..."}],
   "details": {
     "mode": "single",
     "results": [...],
@@ -124,57 +171,11 @@ When the main agent delegates to subagents (worker, reviewer, scout), the subage
 }
 ```
 
-### details.mode
-
-| Mode | Description |
-|------|-------------|
-| `single` | One agent, one task |
-| `parallel` | Multiple agents running concurrently |
-| `chain` | Sequential pipeline, each step feeds the next |
-
-### details.results[]
-
-Each result object contains:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `agent` | string | Agent name (worker, reviewer, scout) |
-| `task` | string | The task prompt given to the agent |
-| `exitCode` | number | 0 = success, non-zero = failure |
-| `messages` | array | Full conversation (same format as session messages, inline) |
-| `model` | string | Model used (e.g., "claude-sonnet-4-6:minimal") |
-| `usage` | object | `{input, output, cacheRead, cacheWrite, cost, turns}` |
-| `progressSummary` | object | `{toolCount, tokens, durationMs}` |
-| `skills` | array | Skill names loaded (e.g., ["commit"]) |
-| `sessionFile` | string | Path to full JSONL in temp dir |
-| `artifactPaths` | object | Paths to input/output/jsonl/metadata files |
-| `progress` | object | Status tracking with task details |
-
-### details.artifacts
-
-```json
-{
-  "dir": "~/.pi/agent/sessions/<project>/subagent-artifacts",
-  "files": [
-    {
-      "inputPath": ".../<hash>_worker_input.md",
-      "outputPath": ".../<hash>_worker_output.md",
-      "jsonlPath": ".../<hash>_worker.jsonl",
-      "metadataPath": ".../<hash>_worker_metadata.json"
-    }
-  ]
-}
-```
+Legacy modes are `single`, `parallel`, and `chain`. Result objects may contain `agent`, `task`, `exitCode`, `messages`, `model`, `usage`, `progressSummary`, `skills`, `sessionFile`, and `artifactPaths`.
 
 ### Subagent Session File Locations
 
-Three ways to access subagent session data:
-
-1. **Inline messages** — `details.results[].messages` (embedded in parent, always available)
-2. **Temp session file** — `details.results[].sessionFile` at `$TMPDIR/pi-subagent-session-<random>/run-<N>/` (may be cleaned up)
-3. **Persistent artifacts** — `details.artifacts.files[]` in `~/.pi/agent/sessions/<project>/subagent-artifacts/` (persistent)
-
-To read a subagent's full session, use its `sessionFile` or `artifactPaths.jsonlPath` with the same `read_session.py` script.
+Use the current or legacy result's `sessionFile` when it exists. Legacy runs may also provide `artifactPaths.jsonlPath` or persistent files under `details.artifacts.files[]`. Parse child JSONL files with the same `read_session.py` script.
 
 ## Common Pitfalls
 
@@ -183,5 +184,7 @@ To read a subagent's full session, use its `sessionFile` or `artifactPaths.jsonl
 3. **Tool results are separate entries:** Not inside the assistant message
 4. **Large sessions:** Tool results often contain huge outputs
 5. **String content:** Some older content fields may be plain strings
-6. **Subagent details:** The `details` field on subagent toolResults is NOT in the `content` array — it's a sibling of `content` on the message object
-7. **Subagent temp files:** `sessionFile` paths are in `$TMPDIR` and may be cleaned up; use `artifactPaths.jsonlPath` for persistent copies
+6. **Subagent details:** Tool-result `details` is a sibling of `content` on the nested message object
+7. **Async completion:** Current result and ping details live on top-level `custom_message` records, not under `line.message`
+8. **Ping/resume lifecycle:** Mark the pinged launch complete before correlating a later resume on the same session path
+9. **Session paths:** Current `sessionFile` paths are normally persistent project session files; older temp paths may be cleaned up

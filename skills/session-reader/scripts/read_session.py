@@ -6,7 +6,7 @@
 Parse pi session JSONL files into readable formats.
 
 Usage:
-    uv run read_session.py <session_path> [--mode MODE] [--turn N] [--offset N] [--limit N] [--max-content N] [--search TERM]
+    python3 read_session.py <session_path> [--mode MODE] [--turn N] [--offset N] [--limit N] [--max-content N] [--search TERM]
 
 Modes:
     conversation  User and assistant text only — no tool calls (default)
@@ -78,11 +78,12 @@ def format_duration(ms: int | float) -> str:
     return f"{mins}m{secs}s"
 
 
-def parse_session(path: str) -> tuple[dict, list[dict], list[dict]]:
-    """Parse a session file into (metadata, events, messages)."""
+def parse_session(path: str) -> tuple[dict, list[dict], list[dict], list[dict]]:
+    """Parse a session into metadata, events, messages, and custom messages."""
     metadata = {}
     events = []
     messages = []
+    custom_messages = []
 
     with open(path) as f:
         for line in f:
@@ -98,14 +99,163 @@ def parse_session(path: str) -> tuple[dict, list[dict], list[dict]]:
                 events.append(obj)
             elif t == "message":
                 messages.append(obj)
+            elif t == "custom_message":
+                custom_messages.append(obj)
 
-    return metadata, events, messages
+    return metadata, events, messages, custom_messages
 
 
 def extract_subagent_details(msg: dict) -> dict | None:
-    if msg.get("role") != "toolResult" or msg.get("toolName") != "subagent":
+    if msg.get("role") != "toolResult" or msg.get("toolName") not in ("subagent", "subagent_resume"):
         return None
-    return msg.get("details")
+    details = msg.get("details")
+    if not isinstance(details, dict):
+        return None
+    if isinstance(details.get("results"), list):
+        return details
+    return {"mode": "single", "results": [details]}
+
+
+def extract_custom_subagent_result(entry: dict) -> dict | None:
+    if entry.get("type") != "custom_message" or entry.get("customType") != "subagent_result":
+        return None
+    details = entry.get("details")
+    return details if isinstance(details, dict) else None
+
+
+def extract_custom_subagent_ping(entry: dict) -> dict | None:
+    if entry.get("type") != "custom_message" or entry.get("customType") != "subagent_ping":
+        return None
+    details = entry.get("details")
+    if not isinstance(details, dict):
+        return None
+    return {**details, "status": "needs_help"}
+
+
+def subagent_result_keys(result: dict) -> list[tuple]:
+    keys = []
+    session = result.get("sessionFile") or result.get("sessionPath")
+    if session:
+        keys.append(("session", session))
+    if result.get("id"):
+        keys.append(("id", result["id"]))
+    if result.get("name") or result.get("task"):
+        keys.append(("task", result.get("name", ""), result.get("task", "")))
+    return keys
+
+
+def collect_subagent_invocations(messages: list[dict], custom_messages: list[dict]) -> list[dict]:
+    """Normalize legacy and async records in chronological order."""
+    tool_calls = {}
+    for entry in messages:
+        msg = entry.get("message", {})
+        if msg.get("role") != "assistant":
+            continue
+        for item in msg.get("content", []):
+            if isinstance(item, dict) and item.get("type") == "toolCall" and item.get("name") in ("subagent", "subagent_resume"):
+                tool_calls[item.get("id", "")] = item.get("arguments", {})
+
+    invocations = []
+    pending: dict[tuple, list[dict]] = {}
+
+    def add_pending(invocation: dict, result: dict):
+        for key in subagent_result_keys(result):
+            pending.setdefault(key, []).append(invocation)
+
+    def take_pending(result: dict) -> dict | None:
+        for key in subagent_result_keys(result):
+            queue = pending.get(key, [])
+            while queue and queue[0].get("completed"):
+                queue.pop(0)
+            if queue:
+                return queue.pop(0)
+        return None
+
+    records = sorted(
+        [*messages, *custom_messages],
+        key=lambda entry: str(entry.get("timestamp", "")),
+    )
+    for entry in records:
+        if entry.get("type") == "message":
+            msg = entry.get("message", {})
+            details = extract_subagent_details(msg)
+            if not details:
+                continue
+            results = [dict(result) for result in details.get("results", [])]
+            invocation = {
+                "mode": details.get("mode", "single"),
+                "results": results,
+                "call_args": tool_calls.get(msg.get("toolCallId", ""), {}),
+                "source_message": msg,
+                "completed": isinstance(msg.get("details", {}).get("results"), list),
+            }
+            invocations.append(invocation)
+            if len(results) == 1 and not invocation["completed"]:
+                add_pending(invocation, results[0])
+            continue
+
+        result = extract_custom_subagent_ping(entry)
+        if result:
+            invocation = take_pending(result)
+            if invocation:
+                invocation["results"][0] = {**invocation["results"][0], **result}
+                invocation["completed"] = True
+            else:
+                invocations.append({
+                    "mode": "single",
+                    "results": [dict(result)],
+                    "call_args": {},
+                    "source_message": None,
+                    "completed": True,
+                })
+            continue
+
+        result = extract_custom_subagent_result(entry)
+        if not result:
+            continue
+        invocation = take_pending(result)
+        if invocation:
+            invocation["results"][0] = {**invocation["results"][0], **result}
+            invocation["completed"] = True
+        else:
+            invocations.append({
+                "mode": "single",
+                "results": [dict(result)],
+                "call_args": {},
+                "source_message": None,
+                "completed": True,
+            })
+
+    for invocation in invocations:
+        source_message = invocation.get("source_message")
+        if source_message is not None:
+            original = source_message.get("details") or {}
+            source_message["details"] = {
+                **original,
+                "mode": invocation["mode"],
+                "results": invocation["results"],
+            }
+
+    return invocations
+
+
+def result_duration_ms(result: dict) -> int | float:
+    progress = result.get("progressSummary") or {}
+    if progress.get("durationMs") is not None:
+        return progress["durationMs"]
+    return (result.get("elapsed") or 0) * 1000
+
+
+def result_status(result: dict) -> str:
+    if result.get("error") or result.get("errorMessage"):
+        return "❌ failed"
+    if result.get("exitCode") is not None:
+        return "✓ completed" if result["exitCode"] == 0 else "❌ failed"
+    if result.get("status") == "needs_help":
+        return "↗ needs help"
+    if result.get("status") == "started":
+        return "… running"
+    return "? unknown"
 
 
 def extract_turns(messages: list[dict]) -> list[dict]:
@@ -241,20 +391,28 @@ def format_subagent_summary(details: dict) -> str:
 
     for r in results:
         agent = r.get("agent", "?")
-        exit_code = r.get("exitCode", -1)
-        status_icon = "✓" if exit_code == 0 else "❌"
+        status = result_status(r)
+        status_icon = status.split()[0]
         model = r.get("model", "")
         usage = r.get("usage", {})
         cost = usage.get("cost", 0)
         total_cost += cost
         progress = r.get("progressSummary", {})
-        duration = progress.get("durationMs", 0)
+        duration = result_duration_ms(r)
         total_duration += duration
-        tool_count = progress.get("toolCount", 0)
+        tool_count = progress.get("toolCount")
         task = r.get("task", "")[:100].replace("\n", " ")
-        parts.append(f"  {status_icon} {agent} ({model}): {task}")
-        if cost or duration:
-            parts.append(f"    ${cost:.4f} | {format_duration(duration)} | {tool_count} tools")
+        model_suffix = f" ({model})" if model else ""
+        parts.append(f"  {status_icon} {agent}{model_suffix}: {task}")
+        metrics = []
+        if cost:
+            metrics.append(f"${cost:.4f}")
+        if duration:
+            metrics.append(format_duration(duration))
+        if tool_count is not None:
+            metrics.append(f"{tool_count} tools")
+        if metrics:
+            parts.append(f"    {' | '.join(metrics)}")
 
     header = f"🔀 SUBAGENT [{mode}] — {len(results)} run(s), ${total_cost:.4f}, {format_duration(total_duration)}"
     return header + "\n" + "\n".join(parts)
@@ -656,37 +814,23 @@ def print_costs(turns: list[dict], args):
     print(f"{'TOTAL':<54} ${grand_total:>9.4f}")
 
 
-def print_subagents(turns: list[dict], messages: list[dict], args):
-    """Detailed subagent information."""
+def print_subagents(invocations: list[dict], args):
+    """Detailed subagent information across legacy and current async formats."""
     print(f"{'═' * 70}")
     print("SUBAGENT RUNS")
     print(f"{'═' * 70}")
+    if not invocations:
+        print("\n  No subagent invocations found in this session.")
+        return
 
-    sub_num = 0
-    found_any = False
-
-    for i, entry in enumerate(messages):
-        msg = entry.get("message", {})
-        details = extract_subagent_details(msg)
-        if not details:
-            continue
-
-        found_any = True
-        mode = details.get("mode", "?")
-        results = details.get("results", [])
-
-        call_args = {}
-        for j in range(i - 1, max(i - 5, -1), -1):
-            prev_msg = messages[j].get("message", {})
-            prev_content = prev_msg.get("content", [])
-            if isinstance(prev_content, list):
-                for item in prev_content:
-                    if isinstance(item, dict) and item.get("type") == "toolCall" and item.get("name") == "subagent":
-                        call_args = item.get("arguments", {})
-                        break
+    run_num = 0
+    for invocation_num, invocation in enumerate(invocations, 1):
+        mode = invocation["mode"]
+        results = invocation["results"]
+        call_args = invocation["call_args"]
 
         print(f"\n{'━' * 60}")
-        print(f"INVOCATION #{sub_num + 1} — mode: {mode}")
+        print(f"INVOCATION #{invocation_num} — mode: {mode}")
         print(f"{'━' * 60}")
 
         if call_args.get("chain"):
@@ -695,41 +839,44 @@ def print_subagents(turns: list[dict], messages: list[dict], args):
                 print(f"    → {step.get('agent', '?')}: {str(step.get('task', ''))[:120]}")
         elif call_args.get("tasks"):
             print(f"  Parallel tasks: {len(call_args['tasks'])}")
-            for t in call_args["tasks"]:
-                print(f"    → {t.get('agent', '?')}: {str(t.get('task', ''))[:120]}")
+            for task in call_args["tasks"]:
+                print(f"    → {task.get('agent', '?')}: {str(task.get('task', ''))[:120]}")
 
         total_cost = 0
         total_duration = 0
-
-        for r in results:
-            sub_num += 1
-            agent = r.get("agent", "?")
-            exit_code = r.get("exitCode", -1)
-            status = "✓ completed" if exit_code == 0 else "❌ failed"
-            model = r.get("model", "")
-            usage = r.get("usage", {})
+        for result in results:
+            run_num += 1
+            agent = result.get("agent", "?")
+            usage = result.get("usage") or {}
+            progress = result.get("progressSummary") or {}
             cost = usage.get("cost", 0)
+            duration = result_duration_ms(result)
             total_cost += cost
-            turns_count = usage.get("turns", 0)
-            progress = r.get("progressSummary", {})
-            duration = progress.get("durationMs", 0)
             total_duration += duration
-            tool_count = progress.get("toolCount", 0)
-            skills = r.get("skills", [])
-            task = r.get("task", "")
-            session_file = r.get("sessionFile", "")
-            artifact_paths = r.get("artifactPaths", {})
+            task = result.get("task", "")
+            session_file = result.get("sessionFile") or result.get("sessionPath", "")
+            artifact_paths = result.get("artifactPaths") or {}
 
-            print(f"\n  ── Run #{sub_num}: {agent} ──")
-            print(f"  Status:   {status}")
-            print(f"  Model:    {model}")
-            print(f"  Task:     {truncate(task.replace(chr(10), ' '), 300)}")
-            if skills:
-                print(f"  Skills:   {', '.join(skills)}")
-            print(f"  Cost:     ${cost:.4f}")
-            print(f"  Duration: {format_duration(duration)}")
-            print(f"  Tokens:   {usage.get('input', 0):,} in / {usage.get('output', 0):,} out / {usage.get('cacheRead', 0):,} cached")
-            print(f"  Tools:    {tool_count} calls in {turns_count} turns")
+            print(f"\n  ── Run #{run_num}: {agent} ──")
+            print(f"  Status:   {result_status(result)}")
+            if result.get("model"):
+                print(f"  Model:    {result['model']}")
+            if result.get("name"):
+                print(f"  Name:     {result['name']}")
+            if task:
+                print(f"  Task:     {truncate(task.replace(chr(10), ' '), 300)}")
+            if result.get("skills"):
+                print(f"  Skills:   {', '.join(result['skills'])}")
+            if cost:
+                print(f"  Cost:     ${cost:.4f}")
+            if duration:
+                print(f"  Duration: {format_duration(duration)}")
+            if usage:
+                print(f"  Tokens:   {usage.get('input', 0):,} in / {usage.get('output', 0):,} out / {usage.get('cacheRead', 0):,} cached")
+                print(f"  Tools:    {progress.get('toolCount', 0)} calls in {usage.get('turns', 0)} turns")
+            error = result.get("errorMessage") or result.get("error")
+            if error:
+                print(f"  Error:    {error}")
 
             if session_file:
                 exists = Path(session_file).exists()
@@ -742,10 +889,13 @@ def print_subagents(turns: list[dict], messages: list[dict], args):
                 print(f"  Output:   {artifact_paths['outputPath']}{'' if exists else ' (deleted)'}")
 
         if len(results) > 1:
-            print(f"\n  Combined: ${total_cost:.4f} | {format_duration(total_duration)}")
-
-    if not found_any:
-        print("\n  No subagent invocations found in this session.")
+            metrics = []
+            if total_cost:
+                metrics.append(f"${total_cost:.4f}")
+            if total_duration:
+                metrics.append(format_duration(total_duration))
+            if metrics:
+                print(f"\n  Combined: {' | '.join(metrics)}")
 
 
 # Patterns that indicate the assistant is recovering from a failure
@@ -793,7 +943,7 @@ def find_issues(exchanges: list[dict]) -> list[dict]:
             if not details:
                 continue
             for r in details.get("results", []):
-                if r.get("exitCode", 0) != 0:
+                if result_status(r).startswith("❌"):
                     agent = r.get("agent", "?")
                     task = r.get("task", "")[:200].replace("\n", " ")
                     exchange_issues.append({"type": "subagent_failed", "agent": agent, "task": task})
@@ -885,7 +1035,8 @@ def main():
         print(f"Error: Session file not found: {path}", file=sys.stderr)
         sys.exit(1)
 
-    metadata, events, messages = parse_session(str(path))
+    metadata, events, messages, custom_messages = parse_session(str(path))
+    subagent_invocations = collect_subagent_invocations(messages, custom_messages)
     turns = extract_turns(messages)
     exchanges = group_into_exchanges(turns)
 
@@ -909,7 +1060,7 @@ def main():
     elif args.mode == "costs":
         print_costs(turns, args)
     elif args.mode == "subagents":
-        print_subagents(turns, messages, args)
+        print_subagents(subagent_invocations, args)
 
 
 if __name__ == "__main__":

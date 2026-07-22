@@ -165,9 +165,8 @@ Avoid shotgun debugging ("let me try this... nope, what about this..."). If you'
 | `scout` | Fast codebase reconnaissance | GPT-5.6 Luna (low thinking) |
 | `worker` | Implements tasks from todos, makes polished commits (always using the `commit` skill), and closes the todo. Reports back if a todo is missing examples/references. | GPT-5.6 Sol (medium thinking) |
 | `reviewer` | Reviews code for quality/security | GPT-5.6 Sol (high thinking) |
-| `researcher` | Deep research using parallel tools (web search, URL extraction, synthesis) plus pi subagents for hands-on code investigation | GPT-5.6 Terra (medium thinking) |
+| `researcher` | Deep research using Tavily-backed web tools and bounded local inspection | GPT-5.6 Terra (medium thinking) |
 | `visual-tester` | Visual QA for web UIs using Chrome CDP | GPT-5.6 Terra (low thinking) |
-| `autoresearch` | Autonomous experiment runner | GPT-5.6 Luna (low thinking) |
 
 #### Orchestration Mindset
 
@@ -194,10 +193,10 @@ subagent({ name: "Reviewer", agent: "reviewer", task: "Review recent changes..."
 subagent({ name: "Researcher", agent: "researcher", task: "Research [topic]..." })
 
 // Spec — clarifies WHAT to build (interactive, user collaborates)
-subagent({ name: "📝 Spec", agent: "spec", interactive: true, task: "Define spec: [description]. Context: [relevant info]" })
+subagent({ name: "📝 Spec", agent: "spec", interactive: true, task: "Define spec: [description]. Output: [.pi/plans/.../spec.md]. Context: [relevant info]" })
 
 // Planner — figures out HOW to build it (interactive, receives spec as input)
-subagent({ name: "💬 Planner", agent: "planner", interactive: true, task: "Plan implementation for spec: [spec artifact path]. Context: [relevant info]" })
+subagent({ name: "💬 Planner", agent: "planner", interactive: true, task: "Plan implementation for spec: [spec artifact path]. Output: [.pi/plans/.../plan.md]. Context: [relevant info]" })
 
 // Iterate — fork the session for focused work, full context preserved
 subagent({ name: "Iterate", fork: true, task: "Fix the bug where..." })
@@ -212,7 +211,7 @@ subagent({ name: "Scout: DB", agent: "scout", task: "Map database schema" })
 
 **Parallel execution:** Since subagents are async, just call `subagent` multiple times — they all run concurrently in their own cmux terminals. Results steer back independently as each finishes.
 
-Subagents are full pi sessions — all extensions and skills auto-discover. A subagent can spawn another subagent (e.g., planner spawns a scout). Agent `.md` files in `~/.pi/agent/agents/` define model, tools, skills, thinking level.
+Subagents are full pi sessions. Extensions and skills are discovered, then each agent's `tools` allowlist and `skill`/`skills` frontmatter determine what it can use. Agents with spawning enabled can delegate further. Agent `.md` files in `~/.pi/agent/agents/` define model, tools, skills, and thinking level.
 
 **`auto-exit: true` frontmatter field** — Set in agent definition `.md` files to make the agent auto-shutdown when its turn ends, without needing to call `subagent_done`. Use for autonomous agents (scout, worker, reviewer). Don't use for interactive agents (spec, planner). Safety: if the user sends any input during the session, auto-exit is permanently disabled for that session.
 
@@ -240,7 +239,7 @@ subagent({
 - **Worker reports missing context** → Provide the missing examples/references, update the todo, re-spawn the worker
 - **Code review needed** → Delegate to `reviewer`
 - **Need context first** → Start with `scout`
-- **Web research or external info needed** → Delegate to `researcher` (uses parallel tools for web search/synthesis and pi subagents for hands-on code exploration)
+- **Web research or external info needed** → Delegate to `researcher` for Tavily-backed research and bounded read-only local inspection
 
 #### When NOT to Delegate
 

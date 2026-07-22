@@ -15,10 +15,11 @@ ls -t ~/.pi/agent/sessions/*<project>*/*.jsonl | head -10
 
 ## Step 2: Start with Table of Contents
 
-Always start with `toc` to get a numbered map of the session:
+The parser uses only Python's standard library. Invoke it with `python3`; `uv` is not required. In this global installation:
 
 ```bash
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode toc
+SESSION_READER="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/session-reader/scripts/read_session.py"
+python3 "$SESSION_READER" <path> --mode toc
 ```
 
 This prints a compact numbered list of every user exchange with timestamps and tools used.
@@ -28,14 +29,16 @@ This prints a compact numbered list of every user exchange with timestamps and t
 Default mode — shows only user messages and assistant text responses. Tool calls are hidden but hinted at with `[used: tool1, tool2]`.
 
 ```bash
+SESSION_READER="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/session-reader/scripts/read_session.py"
+
 # Full conversation (default mode)
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path>
+python3 "$SESSION_READER" <path>
 
 # Specific range
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --offset 5 --limit 3
+python3 "$SESSION_READER" <path> --offset 5 --limit 3
 
 # Search for specific topic
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --search "error"
+python3 "$SESSION_READER" <path> --search "error"
 ```
 
 ## Step 4: Drill Into a Turn
@@ -43,7 +46,7 @@ uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --search "error"
 See everything about a specific exchange — thinking, tool calls, tool results, costs:
 
 ```bash
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <path> --mode turn --turn 7
+python3 "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/session-reader/scripts/read_session.py" <path> --mode turn --turn 7
 ```
 
 ## Mode Reference
@@ -83,9 +86,9 @@ Subagent session files can be read with the same script:
 
 ```bash
 # From --mode subagents output, grab the JSONL path
-uv run ${CLAUDE_SKILL_ROOT}/scripts/read_session.py <subagent-jsonl-path> --mode toc
+python3 "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/session-reader/scripts/read_session.py" <subagent-jsonl-path> --mode toc
 ```
 
 ## Session Format Reference
 
-Read `${CLAUDE_SKILL_ROOT}/references/session-format.md` only if custom parsing is needed.
+Read `references/session-format.md` relative to this skill directory only if custom parsing is needed.
