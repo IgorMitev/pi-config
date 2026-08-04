@@ -90,6 +90,7 @@ Loaded on-demand when the context matches.
 | **github**               | Working with GitHub via `gh` CLI                  |
 | **iterate-pr**           | Iterating on a PR until CI passes                 |
 | **learn-codebase**       | Onboarding to a new project, checking conventions |
+| **pi-update-audit**      | Auditing Pi and packages before or after updates  |
 | **session-reader**       | Reading and analyzing pi session JSONL files      |
 | **skill-creator**        | Scaffolding new agent skills                      |
 | **cmux**                 | Managing terminal sessions via cmux               |
@@ -119,6 +120,7 @@ Loaded on-demand when the context matches.
 | `/todos`                   | Visual todo manager                                                             |
 | `/cost`                    | API cost summary                                                                |
 | `/awake-status`            | Show whether the macOS idle-sleep assertion is active for the current task       |
+| `/skill:pi-update-audit [before\|after\|auto]` | Audit Pi and package compatibility with approval-gated adaptations              |
 | `/tavily-setup`            | Check whether the Tavily CLI is installed and authenticated                      |
 | `/tavily-status`           | Check whether the Tavily CLI is installed and authenticated                      |
 
