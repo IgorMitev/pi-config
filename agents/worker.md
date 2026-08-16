@@ -66,17 +66,18 @@ todo(action: "get", id: "TODO-xxxx")
 - [ ] A code example or snippet showing expected shape (imports, patterns, structure)
 - [ ] OR an explicit reference to existing code to extrapolate from (file path + what to look at)
 - [ ] Explicit constraints (libraries to use, patterns to follow, anti-patterns to avoid)
+- [ ] Verifiable acceptance criteria (commands to run or outputs to check)
 
 **If any of these are missing, STOP and report back.** Do NOT guess or improvise. Write a clear message explaining what's missing:
 
-> "TODO-xxxx is missing [examples / references / constraints]. I need:
+> "TODO-xxxx is missing [examples / references / constraints / acceptance criteria]. I need:
 >
 > - [specific thing 1: e.g., 'a code example showing how to structure the Effect service']
 > - [specific thing 2: e.g., 'which existing file to use as a reference for the component pattern']
 >
 > Cannot implement without this context."
 
-Then **release the todo** and exit. The orchestrator will provide the missing context and re-assign.
+Then exit **without claiming the todo**. The orchestrator will provide the missing context and re-assign.
 
 This is not a failure — it's quality control. Guessing leads to building the wrong thing. Asking leads to building the right thing.
 
@@ -98,12 +99,16 @@ Before marking done:
 
 - Run tests or verify the feature works
 - Check for regressions
-- **For integration/framework changes** (new hooks, decorators, state management, API changes): start the dev server and hit the actual endpoint or load the page. Type errors pass `vp check` but runtime crashes (missing bindings, framework initialization order, RPC serialization) only surface when you run it.
-- **Check against ISC if provided** — if the plan includes Ideal State Criteria, verify your work against each relevant ISC item. Mark them with evidence (command output, file path, test result). "Should work" is not evidence.
+- **For integration/framework changes** (new hooks, decorators, state management, API changes): start the dev server and hit the actual endpoint or load the page. Static type checks pass while runtime crashes (missing bindings, framework initialization order, RPC serialization) only surface when you run it.
+- **Check against ISC if provided** — if the todo's acceptance criteria or the spec reference Ideal State Criteria, verify your work against each relevant ISC item. Mark them with evidence (command output, file path, test result). "Should work" is not evidence.
+
+**If you are blocked** — the todo's acceptance criteria won't pass after honest attempts, your change introduces failures you cannot resolve, a dependency is broken, or the todo's approach demonstrably doesn't work — do NOT close the todo and do NOT commit half-working code. Release the todo, report what you tried, the evidence of the failure, and what you think is needed, then exit. An honest blocked report is worth more than a false "done."
+
+Pre-existing failures unrelated to your change are NOT a blocker: establish the baseline (run the tests before or without your change), note the pre-existing failures in your report, and complete the todo.
 
 ### 6. Commit
 
-Load the commit skill and make a polished, descriptive commit:
+Committing the completed todo is part of the authorized workflow — the user approved execution when the todos were dispatched. Load the commit skill and make a polished, descriptive commit:
 
 ```
 /skill:commit

@@ -4,6 +4,21 @@ Run an interactive specification session followed by an interactive planning ses
 
 **Announce at the start:** "I'll first open a spec session to clarify what to build. Once the spec is complete, I'll open a planner session to design how to build it."
 
+## Interaction transport
+
+Use direct-pane interaction by default. Use **parent-callback transport** only when the user explicitly asks the parent to minimize interaction or orchestrate gates and has supplied or authorized deterministic answers, defaults, or an acceptance-test response policy. Never infer substantive product or design choices merely to reduce interaction.
+
+For parent-callback transport:
+
+1. Add `Interaction transport: parent callbacks` to both subagent tasks, including the authorized response policy.
+2. Spawn with `interactive: false` so callback and failure notifications wake the parent.
+3. At every gate, the agent calls `caller_ping` and exits instead of waiting in its pane.
+4. While more workflow gates remain, resume the same session with `subagent_resume({ sessionPath, message: response, autoExit: false })`.
+5. When the authorized response ends the workflow, resume with `autoExit: true` and instruct the agent to summarize and call `subagent_done`. Automatic exit prevents a completed final response from leaving an idle pane if the agent omits the tool call.
+6. Answer automatically only when the response follows directly from the authorized policy. Otherwise ask the user one consolidated question, then resume the agent with that answer.
+
+Do not poll panes or session files to detect gates. If an agent reports that `caller_ping` is unavailable or waits in its pane despite callback mode, report the transport failure and stop the dry run rather than asking the user to repeatedly notify you.
+
 ## Artifact directory
 
 Choose a short, filesystem-safe `<name>` from the request and use:

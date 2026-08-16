@@ -28,7 +28,7 @@ You may write code to explore or validate an idea — but you never implement th
 
 **You MUST follow all phases.** Your judgment that something is "simple" or "straightforward" is NOT sufficient to skip steps. Even a counter app gets the full treatment.
 
-The ONLY exception: The user explicitly says "skip the plan" or "just do it quickly."
+Exceptions: the user explicitly says "skip the plan" or "just do it quickly," or a phase documents its own skip condition (e.g., the premortem for trivial tasks).
 
 **You will be tempted to skip.** You'll think "this is just a small thing" or "this is obvious." That's exactly when the process matters most. Do NOT write "This is straightforward enough that I'll implement it directly" — that's the one thing you must never do.
 
@@ -53,13 +53,24 @@ DO this:
 
 **If you catch yourself writing "I'll assume...", "Moving on to...", or "Let me implement..." — STOP. Delete it. End the message at the question.**
 
+### Parent-callback transport
+
+Normally, present each gate in your pane and wait there. If the task explicitly sets **interaction transport: parent callbacks**, every instruction to STOP or wait changes transport only:
+
+1. Present the complete gate output.
+2. In the same turn, call `caller_ping` with the exact decision needed, relevant options, and your recommendation. Do not merely end the message and remain waiting in the pane.
+3. `caller_ping` exits the child session. Wait for the parent to resume it with the response.
+4. Treat the resume message as the user's response, then apply the normal confirmation rules before advancing.
+
+Never treat callback mode itself as approval, and never choose an approach or approve a design on the user's behalf. If `caller_ping` is unavailable, report that callback transport is blocked and stop rather than silently falling back to an unattended pane.
+
 ---
 
 ## The Flow
 
 ```
 Phase 1:  Read Spec & Investigate Context
-    ↓
+    ↓ (same message)
 Phase 2:  Explore Approaches            → PRESENT, then STOP and wait
     ↓
 Phase 3:  Validate Design               → section by section, wait between each
@@ -89,7 +100,7 @@ Then investigate the codebase:
 
 ```bash
 ls -la
-find . -type f -name "*.ts" | head -20
+rg --files | head -30
 cat package.json 2>/dev/null | head -30
 ```
 
@@ -105,7 +116,7 @@ subagent({
 });
 ```
 
-**After investigating, summarize for the user:**
+**Do not stop for user input between Phases 1 and 2.** If you investigated yourself, continue directly into Phase 2 in the same message; if you delegated to a subagent, its results arrive in a later turn — continue into Phase 2 in that turn. Open with a brief summary:
 
 > "I've read the spec and explored the codebase. Here's what I see: [brief summary of relevant existing code and patterns]. Now let's figure out how to build this."
 
@@ -113,7 +124,7 @@ subagent({
 
 ## Phase 2: Explore Approaches
 
-**Only after reading the spec and investigating context.**
+**Same message as Phase 1, after investigating** (or the turn where delegated investigation results arrive).
 
 Propose 2-3 approaches with tradeoffs. Lead with your recommendation:
 
@@ -136,7 +147,7 @@ Present the design in sections (200-300 words each), validating each:
 
 Not every project needs all sections — use judgment. But always validate architecture.
 
-**STOP and wait between sections.**
+**STOP and wait between sections.** For small designs, batch related sections into one message rather than spending four round-trips.
 
 ---
 
@@ -230,7 +241,7 @@ After writing: "Plan is written. Ready to create the todos, or anything to adjus
 
 **Before writing any todos, load the `write-todos` skill** — it defines the required structure, rules, and checklist for writing todos that workers can execute without losing architectural intent.
 
-After the plan is confirmed, break it into bite-sized todos (2-5 minutes each).
+After the plan is confirmed, break it into focused todos — each one unit of work a worker can complete in one session and one commit (see the `write-todos` skill for sizing).
 
 ```
 todo(action: "create", title: "Task 1: [description]", tags: ["plan-name"], body: "...")

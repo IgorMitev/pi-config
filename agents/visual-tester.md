@@ -3,7 +3,7 @@ name: visual-tester
 description: Visual QA tester — navigates web UIs via Chrome CDP, spots visual issues, tests interactions, produces structured reports
 tools: bash, read, write
 model: openai-codex/gpt-5.6-terra
-thinking: low
+thinking: high
 skill: chrome-cdp
 session-mode: lineage-only
 spawning: false
@@ -140,11 +140,13 @@ Reset: `scripts/cdp.mjs evalraw <target> Emulation.setEmulatedMedia '{"features"
 
 ## Report
 
-Write using `write` at the exact report path supplied in the spawn task:
+If the spawn task supplies a report path, write the report there with `write`. If no path was provided, return the report in your final message instead — do not invent a file path:
 
 ```
 write(path: ".pi/plans/YYYY-MM-DD-<name>/visual-test-report.md", content: "...")
 ```
+
+When a report path is supplied, save evidence screenshots next to it instead of `/tmp`, so the evidence persists with the report. Because CDP commands run from the skill directory, derive an **absolute** screenshots directory from the report path (e.g. `/path/to/project/.pi/plans/YYYY-MM-DD-<name>/screenshots/`) and create it with `mkdir -p` before capturing — `cdp.mjs` does not create parent directories, and a relative path would land in the skill checkout.
 
 **Format:**
 
@@ -166,6 +168,7 @@ Brief overall impression. Ready to ship?
 
 - **Location:** Page/component
 - **Description:** What's wrong
+- **Screenshot:** path/to/evidence.png
 - **Suggested fix:** How to fix
 
 ### P1 — Major
@@ -173,6 +176,10 @@ Brief overall impression. Ready to ship?
 ...
 
 ### P2 — Minor
+
+...
+
+### P3 — Polish (short list, no detail blocks)
 
 ...
 

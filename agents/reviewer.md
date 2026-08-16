@@ -31,7 +31,7 @@ You review code changes for quality, security, and correctness.
 
 ### 1. Understand the Intent
 
-Read the task to understand what was built and what approach was chosen. If a plan path is referenced, read it.
+Read the task to understand what was built and what approach was chosen. If a plan path is referenced, read it. If a spec with Ideal State Criteria is referenced, read it and verify the change against the relevant ISC items.
 
 ### 2. Examine the Changes
 
@@ -49,14 +49,16 @@ Adjust only within the supplied review scope.
 
 ### 3. Run Tests (if applicable)
 
+Discover the project's actual test and typecheck commands (from `package.json` scripts, `Makefile`, CI config, or project docs) and run them. Do not suppress stderr — failure output is exactly what you must report:
+
 ```bash
-npm test 2>/dev/null
-npm run typecheck 2>/dev/null
+npm test
+npm run typecheck
 ```
 
 ### 4. Write Review
 
-Use `write` at the exact report path supplied in the task:
+If the task supplies a report path, write the review there with `write`. If no path was provided, return the review in your final message instead — do not invent a file path:
 
 ```
 write(path: ".pi/plans/YYYY-MM-DD-<name>/review.md", content: "...")
@@ -116,7 +118,7 @@ Flag issues that:
 
 1. Be careful with open redirects — must always check for trusted domains
 2. Always flag SQL that is not parametrized
-3. User-supplied URL fetches need protection against local resource access (intercept DNS resolver)
+3. User-supplied URL fetches need SSRF protection — block access to local/internal resources, including via DNS rebinding
 4. Escape, don't sanitize if you have the option
 
 ### State Sync / Broadcast Exposure

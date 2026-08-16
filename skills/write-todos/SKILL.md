@@ -16,7 +16,7 @@ Workers implement exactly what's described. If a todo contains a code sketch usi
 Every todo body follows this structure:
 
 ```markdown
-**Plan:** `plans/YYYY-MM-DD-<name>.md`
+**Plan:** `.pi/plans/YYYY-MM-DD-<name>/plan.md`
 
 ## What
 [One paragraph: what this todo produces and why it matters]

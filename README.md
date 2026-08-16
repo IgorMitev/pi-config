@@ -8,7 +8,7 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
-Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.6-sol` and medium thinking, and `setup.sh` bootstraps new installs with the same Codex defaults.
+Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.6-sol` and high thinking, while `setup.sh` bootstraps new installs with the same provider and model but medium thinking.
 
 ### Fresh machine
 
@@ -70,13 +70,13 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 
 | Agent             | Model                    | Purpose                                                                                 |
 | ----------------- | ------------------------ | --------------------------------------------------------------------------------------- |
-| **spec**          | GPT 5.6 Sol (medium)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
-| **planner**       | GPT 5.6 Sol (high)     | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout**         | GPT 5.6 Luna (low)     | Fast codebase reconnaissance — gathers context without making changes                   |
-| **worker**        | GPT 5.6 Sol (medium)   | Implements tasks from todos, commits with polished messages                             |
-| **reviewer**      | GPT 5.6 Sol (high)     | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.6 Terra (medium) | Deep research using Tavily-backed web tools and bounded local inspection                |
-| **visual-tester** | GPT 5.6 Terra (low)    | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
+| **spec**          | GPT 5.6 Sol (high)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
+| **planner**       | GPT 5.6 Sol (high)   | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout**         | GPT 5.6 Luna (high)  | Fast codebase reconnaissance — gathers context without making changes                   |
+| **worker**        | GPT 5.6 Sol (medium) | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 5.6 Sol (high)   | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **researcher**    | GPT 5.6 Terra (high) | Deep research using Tavily-backed web tools and bounded local inspection                |
+| **visual-tester** | GPT 5.6 Terra (high) | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 
 ## Skills
 
