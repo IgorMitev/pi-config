@@ -141,6 +141,8 @@ If local verification fails, fix before proceeding — do not push known-broken 
 
 **Use the `commit` skill** to create polished commits — do not `git commit -m "fix stuff"`.
 
+Confirm that the request authorizes updating the PR's remote branch. An explicit request to iterate on the named PR until CI passes includes that authorization; otherwise ask before the first push.
+
 Then push:
 ```bash
 git push

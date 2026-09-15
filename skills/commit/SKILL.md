@@ -19,7 +19,7 @@ If there are commit hooks - do not skip them, it's your responsability to leave 
 - Body is **strongly encouraged** — always include one unless the change is trivially obvious (e.g., fixing a typo). The body should explain **what** changed, **why** it changed, the approach taken, and any notable decisions. A reader of `git log` should understand the change without looking at the diff.
 - Do NOT include breaking-change markers or footers.
 - Do NOT add sign-offs (no `Signed-off-by`).
-- Only commit; do NOT push.
+- This skill authorizes creating the requested commit, not publishing it. Push only when the user or invoking workflow explicitly authorizes updating the remote branch.
 - If it is unclear whether a file should be included, ask the user which files to commit.
 - Treat any caller-provided arguments as additional commit guidance. Common patterns:
   - Freeform instructions should influence scope, summary, and body.

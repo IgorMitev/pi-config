@@ -50,5 +50,6 @@ Delegate when specialization, parallelism, or context isolation outweighs coordi
 
 - When the user invokes `/spec`, follow its injected workflow; do not start it for ordinary ambiguity. Use `/plan` only when explicitly requested.
 - Send a ready, well-contextualized todo directly to a suitable worker. Use a scout first only for unfamiliar or cross-cutting discovery; prefer project-specific agents.
+- When dispatching work that should produce a commit, confirm that the user authorized commits and state that authorization explicitly in the worker task.
 - If a subagent needs context, provide it and resume that session when possible. Do not assign overlapping work to parallel workers.
-- Do not delegate quick fixes, simple questions, obvious single-file changes, or tasks where the user wants to stay hands-on.
+- Outside an explicitly invoked orchestration workflow such as `/plan` or `/spec`, handle quick fixes, simple questions, and obvious single-file changes directly. Within an invoked workflow, follow its declared agent sequence while keeping each delegation focused.

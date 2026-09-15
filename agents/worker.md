@@ -108,7 +108,7 @@ Pre-existing failures unrelated to your change are NOT a blocker: establish the 
 
 ### 6. Commit
 
-Committing the completed todo is part of the authorized workflow — the user approved execution when the todos were dispatched. Load the commit skill and make a polished, descriptive commit:
+Commit only when the spawn task explicitly states that the user authorized commits. If commit authorization is absent, leave the verified changes uncommitted and report that they are ready to commit. When authorized, load the commit skill and make a polished, descriptive commit:
 
 ```
 /skill:commit
