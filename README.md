@@ -8,7 +8,7 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
-Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-5.6-sol` and high thinking, while `setup.sh` bootstraps new installs with the same provider and model but medium thinking.
+Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-6-luna` and medium thinking, while `setup.sh` bootstraps new installs with `gpt-6-sol` and medium thinking.
 
 ### Fresh machine
 
@@ -68,15 +68,15 @@ This config uses **subagents** — visible pi sessions spawned in cmux terminals
 
 Specialized roles with baked-in identity, workflow, and review rubrics.
 
-| Agent             | Model                    | Purpose                                                                                 |
-| ----------------- | ------------------------ | --------------------------------------------------------------------------------------- |
-| **spec**          | GPT 5.6 Sol (high)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
-| **planner**       | GPT 5.6 Sol (high)   | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
-| **scout**         | GPT 5.6 Luna (high)  | Fast codebase reconnaissance — gathers context without making changes                   |
-| **worker**        | GPT 5.6 Sol (medium) | Implements tasks from todos, commits with polished messages                             |
-| **reviewer**      | GPT 5.6 Sol (high)   | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 5.6 Terra (high) | Deep research using Tavily-backed web tools and bounded local inspection                |
-| **visual-tester** | GPT 5.6 Terra (high) | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
+| Agent             | Model              | Purpose                                                                                 |
+| ----------------- | ------------------ | --------------------------------------------------------------------------------------- |
+| **spec**          | GPT 6 Sol (high)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
+| **planner**       | GPT 6 Sol (high)   | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **scout**         | GPT 6 Luna (high)  | Fast codebase reconnaissance — gathers context without making changes                   |
+| **worker**        | GPT 6 Sol (medium) | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 6 Sol (high)   | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **researcher**    | GPT 6 Sol (high)   | Deep research using Tavily-backed web tools and bounded local inspection                |
+| **visual-tester** | GPT 6 Luna (high)  | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 
 ## Skills
 
@@ -99,43 +99,43 @@ Loaded on-demand when the context matches.
 
 ## Extensions
 
-| Extension            | What it provides                                                          |
-| -------------------- | ------------------------------------------------------------------------- |
-| **answer/**          | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI |
-| **cmux/**            | cmux integration — notifications, sidebar, workspace tools                |
-| **cost/**            | `/cost` command — API cost summary                                        |
-| **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands        |
+| Extension            | What it provides                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **answer/**          | `/answer` command + `Ctrl+.` — extracts questions into interactive Q&A UI                                                |
+| **cmux/**            | cmux integration — notifications, sidebar, workspace tools                                                               |
+| **cost/**            | `/cost` command — API cost summary                                                                                       |
+| **execute-command/** | `execute_command` tool — lets the agent self-invoke slash commands                                                       |
 | **macos-awake/**     | Prevents idle system sleep during active agent tasks with `caffeinate -ims`; display sleep and explicit Sleep still work |
-| **tavily/**          | `web_search`, `web_fetch`, and `deep_research` tools backed by the Tavily CLI |
-| **todos/**           | `/todos` command + `todo` tool — file-based todo management               |
+| **tavily/**          | `web_search`, `web_fetch`, and `deep_research` tools backed by the Tavily CLI                                            |
+| **todos/**           | `/todos` command + `todo` tool — file-based todo management                                                              |
 
 ## Commands
 
-| Command                    | Description                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| `/plan <description>`      | Start a planning session — spawns planner subagent, then orchestrates execution |
-| `/subagent <agent> <task>` | Spawn a subagent (e.g., `/subagent scout analyze the auth module`)              |
-| `/iterate [task]`          | Fork session into interactive subagent for quick fixes                          |
-| `/answer`                  | Extract questions into interactive Q&A                                          |
-| `/todos`                   | Visual todo manager                                                             |
-| `/cost`                    | API cost summary                                                                |
-| `/awake-status`            | Show whether the macOS idle-sleep assertion is active for the current task       |
+| Command                                        | Description                                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------------- |
+| `/plan <description>`                          | Start a planning session — spawns planner subagent, then orchestrates execution |
+| `/subagent <agent> <task>`                     | Spawn a subagent (e.g., `/subagent scout analyze the auth module`)              |
+| `/iterate [task]`                              | Fork session into interactive subagent for quick fixes                          |
+| `/answer`                                      | Extract questions into interactive Q&A                                          |
+| `/todos`                                       | Visual todo manager                                                             |
+| `/cost`                                        | API cost summary                                                                |
+| `/awake-status`                                | Show whether the macOS idle-sleep assertion is active for the current task      |
 | `/skill:pi-update-audit [before\|after\|auto]` | Audit Pi and package compatibility with approval-gated adaptations              |
-| `/tavily-setup`            | Check whether the Tavily CLI is installed and authenticated                      |
-| `/tavily-status`           | Check whether the Tavily CLI is installed and authenticated                      |
+| `/tavily-setup`                                | Check whether the Tavily CLI is installed and authenticated                     |
+| `/tavily-status`                               | Check whether the Tavily CLI is installed and authenticated                     |
 
 ## Packages
 
 Installed via `pi install`, managed in `settings.json`.
 
-| Package                                                                       | Description                                                |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands |
-| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                 |
+| Package                                                                       | Description                                                              |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands               |
+| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                               |
 | [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Installed but disabled because its required runtime APIs are unavailable |
-| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                     |
-| [glimpse](https://github.com/HazAT/glimpse)                                   | Native macOS UI — dialogs, forms, visualizations           |
-| [chrome-cdp-skill](https://github.com/pasky/chrome-cdp-skill)                 | Chrome DevTools Protocol CLI for visual testing            |
+| [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                                   |
+| [glimpse](https://github.com/HazAT/glimpse)                                   | Native macOS UI — dialogs, forms, visualizations                         |
+| [chrome-cdp-skill](https://github.com/pasky/chrome-cdp-skill)                 | Chrome DevTools Protocol CLI for visual testing                          |
 
 ---
 

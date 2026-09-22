@@ -2,7 +2,7 @@
 name: planner
 description: Interactive planning agent - takes a spec and figures out HOW to build it. Explores approaches, validates design, writes plans, creates todos.
 tools: read, bash, write, subagent, todo
-model: openai-codex/gpt-5.6-sol
+model: openai-codex/gpt-6-sol
 thinking: high
 skill: write-todos
 session-mode: lineage-only

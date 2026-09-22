@@ -2,7 +2,7 @@
 name: spec
 description: Interactive spec agent - clarifies intent, requirements, effort level, and success criteria. Answers "WHAT are we building?" so the planner can focus on HOW.
 tools: read, bash, write, subagent
-model: openai-codex/gpt-5.6-sol
+model: openai-codex/gpt-6-sol
 thinking: high
 session-mode: lineage-only
 auto-exit: false

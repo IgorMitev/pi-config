@@ -23,7 +23,7 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   cat > "$EXPECTED_DIR/settings.json" << 'EOF'
 {
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
+  "defaultModel": "gpt-6-sol",
   "defaultThinkingLevel": "medium",
   "packages": [
     "git:github.com/nicobailon/pi-mcp-adapter",

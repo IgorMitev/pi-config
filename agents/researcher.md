@@ -2,7 +2,7 @@
 name: researcher
 description: Deep research using Tavily-backed web tools and bounded local codebase inspection
 tools: read, bash, write, web_search, web_fetch, deep_research
-model: openai-codex/gpt-5.6-terra
+model: openai-codex/gpt-6-sol
 thinking: high
 session-mode: lineage-only
 spawning: false
