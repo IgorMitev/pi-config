@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "0.99.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-luna",
   "defaultThinkingLevel": "medium",
@@ -26,5 +26,6 @@
     "+extensions/cmux/index.ts"
   ],
   "theme": "everforest",
-  "treeFilterMode": "default"
+  "treeFilterMode": "default",
+  "deviceId": "99f79ee8-f4a1-4b38-b49c-c434c31dafaf"
 }

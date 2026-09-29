@@ -8,7 +8,7 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
-Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-6-luna` and medium thinking, while `setup.sh` bootstraps new installs with `gpt-6-sol` and medium thinking.
+Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-6-luna` and medium thinking, while `setup.sh` bootstraps new installs with `gpt-6.1-sol` and medium thinking.
 
 ### Fresh machine
 
@@ -70,12 +70,12 @@ Specialized roles with baked-in identity, workflow, and review rubrics.
 
 | Agent             | Model              | Purpose                                                                                 |
 | ----------------- | ------------------ | --------------------------------------------------------------------------------------- |
-| **spec**          | GPT 6 Sol (high)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
-| **planner**       | GPT 6 Sol (high)   | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
+| **spec**          | GPT 6.1 Sol (high)   | Interactive specification — clarify intent, requirements, effort, success criteria      |
+| **planner**       | GPT 6.1 Sol (high)   | Interactive brainstorming — clarify, explore, validate design, write plan, create todos |
 | **scout**         | GPT 6 Luna (high)  | Fast codebase reconnaissance — gathers context without making changes                   |
-| **worker**        | GPT 6 Sol (medium) | Implements tasks from todos, commits with polished messages                             |
-| **reviewer**      | GPT 6 Sol (high)   | Reviews code for quality, security, correctness (review rubric baked in)                |
-| **researcher**    | GPT 6 Sol (high)   | Deep research using Tavily-backed web tools and bounded local inspection                |
+| **worker**        | GPT 6.1 Sol (medium) | Implements tasks from todos, commits with polished messages                             |
+| **reviewer**      | GPT 6.1 Sol (high)   | Reviews code for quality, security, correctness (review rubric baked in)                |
+| **researcher**    | GPT 6.1 Sol (high)   | Deep research using Tavily-backed web tools and bounded local inspection                |
 | **visual-tester** | GPT 6 Luna (high)  | Visual QA — navigates web UIs via Chrome CDP, spots issues, produces reports            |
 
 ## Skills
