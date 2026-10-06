@@ -12,7 +12,9 @@ pi-crash.log
 
 # Pi runtime files (created when this repo is ~/.pi/agent/)
 git/
+install/
 mcp-cache.json
+mcp-onboarding.json
 mcp-npx-cache.json
 run-history.jsonl
 session-manager-config.toml

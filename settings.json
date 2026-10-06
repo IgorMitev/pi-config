@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.99.1",
+  "lastChangelogVersion": "1.0.4",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-luna",
   "defaultThinkingLevel": "medium",
@@ -15,15 +15,15 @@
       ],
       "skills": []
     },
-    "git:https://github.com/badlogic/pi-diff-review",
-    "git:github.com/nicobailon/pi-mcp-adapter"
+    "git:https://github.com/badlogic/pi-diff-review"
   ],
   "npmCommand": [
     "npm"
   ],
   "hideThinkingBlock": true,
   "extensions": [
-    "+extensions/cmux/index.ts"
+    "+extensions/cmux/index.ts",
+    "-builtin:mcp"
   ],
   "theme": "everforest",
   "treeFilterMode": "default",
