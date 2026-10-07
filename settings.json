@@ -22,8 +22,7 @@
   ],
   "hideThinkingBlock": true,
   "extensions": [
-    "+extensions/cmux/index.ts",
-    "-builtin:mcp"
+    "+extensions/cmux/index.ts"
   ],
   "theme": "everforest",
   "treeFilterMode": "default",
