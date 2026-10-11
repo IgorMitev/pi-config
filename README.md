@@ -8,7 +8,7 @@ My personal [pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-a
 
 Clone this repo directly to `~/.pi/agent/` — pi auto-discovers everything from there (extensions, skills, agents, AGENTS.md, mcp.json). No symlinks, no manual wiring.
 
-Default runtime settings are Codex-based: `settings.json` uses `openai-codex` with `gpt-6-luna` and medium thinking, while `setup.sh` bootstraps new installs with `gpt-6.1-sol` and medium thinking.
+Default runtime settings use `openai` with `gpt-6.1-sol` and medium thinking in both `settings.json` and `setup.sh`.
 
 ### Fresh machine
 

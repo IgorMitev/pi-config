@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "1.0.4",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-luna",
+  "lastChangelogVersion": "1.1.0",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "medium",
   "packages": [
     "git:github.com/HazAT/pi-smart-sessions",

@@ -97,7 +97,7 @@ async function selectExtractionModel(
     >;
   },
 ): Promise<Model<Api>> {
-  const miniModel = modelRegistry.find("openai-codex", MINI_MODEL_ID);
+  const miniModel = modelRegistry.find("openai", MINI_MODEL_ID);
   if (miniModel) {
     const auth = await modelRegistry.getApiKeyAndHeaders(miniModel);
     if (auth.ok) {
@@ -560,7 +560,7 @@ export default function (pi: ExtensionAPI) {
       return;
     }
 
-    // Select the best model for extraction (prefer Codex mini, then haiku)
+    // Prefer OpenAI Mini for extraction, otherwise use the current model.
     const extractionModel = await selectExtractionModel(
       ctx.model,
       ctx.modelRegistry,

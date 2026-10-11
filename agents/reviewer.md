@@ -2,7 +2,7 @@
 name: reviewer
 description: Code review agent - reviews changes for quality, security, and correctness
 tools: read, bash, write
-model: openai-codex/gpt-6.1-sol
+model: openai/gpt-6.1-sol
 thinking: high
 session-mode: lineage-only
 spawning: false
