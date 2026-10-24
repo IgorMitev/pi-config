@@ -1,13 +1,12 @@
 {
-  "lastChangelogVersion": "1.1.0",
+  "lastChangelogVersion": "1.4.0",
   "defaultProvider": "openai",
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "medium",
   "packages": [
-    "git:github.com/HazAT/pi-smart-sessions",
     "git:github.com/pasky/chrome-cdp-skill",
     "git:github.com/HazAT/glimpse",
-    "git:github.com/HazAT/pi-interactive-subagents",
+    "git:github.com/IgorMitev/pi-interactive-subagents@32dbad521c0209577c6eb21614643ea65723f132",
     {
       "source": "git:github.com/HazAT/pi-autoresearch",
       "extensions": [

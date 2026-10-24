@@ -37,6 +37,12 @@ tvly login
 cd ~/.pi/agent && git pull
 ```
 
+### Pinned subagents package
+
+The subagents package uses the public [IgorMitev/pi-interactive-subagents](https://github.com/IgorMitev/pi-interactive-subagents) fork, pinned to an exact commit in `settings.json` and the fresh-machine defaults in `setup.sh`. The fork includes Herdr support and settlement-aware auto-exit, and requires Pi 1.4.0 or newer.
+
+Run `./setup.sh` after pulling configuration changes to install the configured revision. To update the fork, merge and test upstream changes in the fork, publish a new commit, and update the pin in `settings.json`, `setup.sh`, and `tests/setup.test.ts` together. Do not patch the installed checkout: those edits do not propagate to other computers.
+
 ### Validate agent definitions
 
 ```bash
@@ -130,8 +136,7 @@ Installed via `pi install`, managed in `settings.json`.
 
 | Package                                                                       | Description                                                              |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [pi-interactive-subagents](https://github.com/HazAT/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands               |
-| [pi-smart-sessions](https://github.com/HazAT/pi-smart-sessions)               | AI-generated session names                                               |
+| [pi-interactive-subagents](https://github.com/IgorMitev/pi-interactive-subagents) | Subagent tools + `/plan`, `/subagent`, `/iterate` commands               |
 | [pi-autoresearch](https://github.com/HazAT/pi-autoresearch)                   | Installed but disabled because its required runtime APIs are unavailable |
 | [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter)                | MCP server integration                                                   |
 | [glimpse](https://github.com/HazAT/glimpse)                                   | Native macOS UI — dialogs, forms, visualizations                         |

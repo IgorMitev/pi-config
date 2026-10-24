@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { spawn, type ChildProcess } from "node:child_process";
 
 const CAFFEINATE_ARGS = ["-ims"];
@@ -45,7 +45,7 @@ export default function macosAwake(pi: ExtensionAPI) {
     start();
   });
 
-  pi.on("agent_end", async () => {
+  pi.on("agent_settled", async () => {
     stop();
   });
 

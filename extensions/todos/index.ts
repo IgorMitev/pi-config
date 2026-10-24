@@ -30,9 +30,8 @@
  * Use `/todos` to bring up the visual todo manager or just let the LLM use them
  * naturally.
  */
-import { DynamicBorder, copyToClipboard, getAgentDir, getMarkdownTheme, keyHint, type ExtensionAPI, type ExtensionContext, type Theme } from "@mariozechner/pi-coding-agent";
-import { StringEnum } from "@mariozechner/pi-ai";
-import { Type } from "@sinclair/typebox";
+import { DynamicBorder, copyToClipboard, getAgentDir, getMarkdownTheme, keyHint, type ExtensionAPI, type ExtensionContext, type Theme } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -54,7 +53,7 @@ import {
 	matchesKey,
 	truncateToWidth,
 	visibleWidth,
-} from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-tui";
 
 const TODO_PATH_ENV = "PI_TODO_PATH";
 const TODO_SETTINGS_NAME = "settings.json";
@@ -92,17 +91,20 @@ interface TodoSettings {
 }
 
 const TodoParams = Type.Object({
-	action: StringEnum([
-		"list",
-		"list-all",
-		"get",
-		"create",
-		"update",
-		"append",
-		"delete",
-		"claim",
-		"release",
-	] as const),
+	action: Type.Unsafe<TodoAction>({
+		type: "string",
+		enum: [
+			"list",
+			"list-all",
+			"get",
+			"create",
+			"update",
+			"append",
+			"delete",
+			"claim",
+			"release",
+		],
+	}),
 	id: Type.Optional(
 		Type.String({ description: "Todo id (TODO-<hex> or raw hex filename)" }),
 	),

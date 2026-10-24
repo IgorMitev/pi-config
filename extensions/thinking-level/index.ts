@@ -5,7 +5,7 @@ import {
 	ThinkingSelectorComponent,
 	type ExtensionAPI,
 	type ExtensionContext,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 
 type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
 

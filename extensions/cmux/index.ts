@@ -8,7 +8,7 @@
  * No-op when CMUX_SOCKET_PATH is not set (i.e. not running inside cmux).
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const CMUX_SOCKET = process.env.CMUX_SOCKET_PATH;
 
@@ -121,7 +121,7 @@ export default function (pi: ExtensionAPI) {
     setStatus("pi_state", "Working", "arrow.circlepath", AMBER);
   });
 
-  pi.on("agent_end", async (_event, ctx) => {
+  pi.on("agent_settled", async (_event, ctx) => {
     if (!ctx.hasUI) return;
     setStatus("pi_state", "Idle", "checkmark.circle", GREEN);
     clearStatus("pi_tool");

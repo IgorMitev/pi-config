@@ -26,22 +26,23 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "medium",
   "packages": [
-    "git:github.com/nicobailon/pi-mcp-adapter",
-    {
-      "source": "git:github.com/HazAT/pi-smart-sessions",
-      "extensions": [
-        "+extensions/smart-sessions.ts"
-      ]
-    },
     "git:github.com/pasky/chrome-cdp-skill",
     "git:github.com/HazAT/glimpse",
-    "git:github.com/HazAT/pi-interactive-subagents",
-    "git:github.com/HazAT/pi-autoresearch"
+    "git:github.com/IgorMitev/pi-interactive-subagents@32dbad521c0209577c6eb21614643ea65723f132",
+    {
+      "source": "git:github.com/HazAT/pi-autoresearch",
+      "extensions": [
+        "-extensions/pi-autoresearch/index.ts"
+      ],
+      "skills": []
+    },
+    "git:https://github.com/badlogic/pi-diff-review"
   ],
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "extensions": [
     "+extensions/cmux/index.ts"
-  ]
+  ],
+  "theme": "everforest"
 }
 EOF
 else
@@ -49,14 +50,10 @@ else
   echo ""
 fi
 
-# Install packages
-echo "Installing packages..."
-pi install git:github.com/nicobailon/pi-mcp-adapter 2>/dev/null || echo "  pi-mcp-adapter already installed"
-pi install git:github.com/HazAT/pi-smart-sessions 2>/dev/null || echo "  pi-smart-sessions already installed"
-pi install git:github.com/pasky/chrome-cdp-skill 2>/dev/null || echo "  chrome-cdp-skill already installed"
-pi install git:github.com/HazAT/glimpse 2>/dev/null || echo "  glimpse already installed"
-pi install git:github.com/HazAT/pi-interactive-subagents 2>/dev/null || echo "  pi-interactive-subagents already installed"
-pi install git:github.com/HazAT/pi-autoresearch 2>/dev/null || echo "  pi-autoresearch already installed"
+# Reconcile declared packages (including missing installs) without rewriting filters.
+# Ignore project-local packages and explicitly target this config directory.
+echo "Installing/updating configured packages..."
+PI_CODING_AGENT_DIR="$EXPECTED_DIR" pi update --extensions --no-approve
 echo ""
 
 echo "✅ Setup complete!"

@@ -11,16 +11,15 @@
  */
 
 import {
-  complete,
   type Model,
   type Api,
   type UserMessage,
-} from "@mariozechner/pi-ai";
+} from "@earendil-works/pi-ai";
 import type {
   ExtensionAPI,
   ExtensionContext,
-} from "@mariozechner/pi-coding-agent";
-import { BorderedLoader } from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
+import { BorderedLoader } from "@earendil-works/pi-coding-agent";
 import {
   type Component,
   Editor,
@@ -31,7 +30,7 @@ import {
   type TUI,
   visibleWidth,
   wrapTextWithAnsi,
-} from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-tui";
 
 // Structured output format for question extraction
 interface ExtractedQuestion {
@@ -87,15 +86,7 @@ const MINI_MODEL_ID = "gpt-5.4-mini";
  */
 async function selectExtractionModel(
   currentModel: Model<Api>,
-  modelRegistry: {
-    find: (provider: string, modelId: string) => Model<Api> | undefined;
-    getApiKeyAndHeaders: (
-      model: Model<Api>,
-    ) => Promise<
-      | { ok: true; apiKey?: string; headers?: Record<string, string | null> }
-      | { ok: false; error: string }
-    >;
-  },
+  modelRegistry: Pick<ExtensionContext["modelRegistry"], "find" | "getApiKeyAndHeaders">,
 ): Promise<Model<Api>> {
   const miniModel = modelRegistry.find("openai", MINI_MODEL_ID);
   if (miniModel) {
@@ -577,20 +568,16 @@ export default function (pi: ExtensionAPI) {
         loader.onAbort = () => done(null);
 
         const doExtract = async () => {
-          const auth =
-            await ctx.modelRegistry.getApiKeyAndHeaders(extractionModel);
-          const apiKey = auth.ok ? auth.apiKey : undefined;
-          const headers = auth.ok ? auth.headers : undefined;
           const userMessage: UserMessage = {
             role: "user",
             content: [{ type: "text", text: lastAssistantText! }],
             timestamp: Date.now(),
           };
 
-          const response = await complete(
+          const response = await ctx.modelRegistry.complete(
             extractionModel,
             { systemPrompt: SYSTEM_PROMPT, messages: [userMessage] },
-            { apiKey, headers, signal: loader.signal },
+            { signal: loader.signal },
           );
 
           if (response.stopReason === "aborted") {

@@ -1,9 +1,36 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
+import { randomUUID } from "node:crypto";
 
 export default function (pi: ExtensionAPI) {
-  // Queue of commands to execute after agent turn ends
-  let pendingCommand: { command: string; reason?: string } | null = null;
+  // Keep the existing last-command-wins behavior until automatic processing settles.
+  let pendingCommand: { command: string; reason?: string; id: string; scheduled: boolean } | null = null;
+
+  pi.registerCommand("execute-command-dispatch", {
+    description: "Dispatch the pending execute_command request",
+    handler: async (id, ctx) => {
+      if (!pendingCommand || pendingCommand.id !== id) return;
+      const { command } = pendingCommand;
+      pendingCommand = null;
+
+      if (command === "/answer") {
+        pi.events.emit("trigger:answer", ctx);
+      } else if (command === "/reload") {
+        // Reload replaces this runtime; do not use pi or ctx afterward.
+        await ctx.reload();
+        return;
+      } else if (command.startsWith("/")) {
+        pi.sendUserMessage(command, { expandPromptTemplates: true });
+      } else if (ctx.hasUI) {
+        ctx.ui.setEditorText(command);
+        ctx.ui.notify(`Press Enter to send: ${command}`, "info");
+      }
+    },
+  });
+
+  pi.on("session_shutdown", () => {
+    pendingCommand = null;
+  });
 
   // Tool to execute a command/message directly (self-invoke)
   pi.registerTool({
@@ -34,8 +61,7 @@ The command/message appears in the conversation as a user message.`,
     async execute(toolCallId, params, signal, onUpdate, ctx) {
       const { command, reason } = params;
 
-      // Store command to be executed after agent turn ends
-      pendingCommand = { command, reason };
+      pendingCommand = { command, reason, id: randomUUID(), scheduled: false };
 
       const explanation = reason 
         ? `Queued for execution: ${command}\nReason: ${reason}`
@@ -52,31 +78,13 @@ The command/message appears in the conversation as a user message.`,
     },
   });
 
-  // Execute pending command after agent turn completes
-  pi.on("agent_end", async (event, ctx) => {
-    if (pendingCommand) {
-      const { command } = pendingCommand;
-      pendingCommand = null;
-      
-      // Special handling for /answer via event bus (needs context)
-      if (command === "/answer") {
-        setTimeout(() => {
-          pi.events.emit("trigger:answer", ctx);
-        }, 100);
-      } 
-      // Auto-execute slash commands via sendUserMessage
-      else if (command.startsWith("/")) {
-        setTimeout(() => {
-          pi.sendUserMessage(command);
-        }, 100);
-      }
-      // For non-command text, prefill editor and notify
-      else {
-        if (ctx.hasUI) {
-          ctx.ui.setEditorText(command);
-          ctx.ui.notify(`Press Enter to send: ${command}`, "info");
-        }
-      }
-    }
+  pi.on("agent_settled", () => {
+    if (!pendingCommand || pendingCommand.scheduled) return;
+    pendingCommand.scheduled = true;
+    // Pi defers prompts submitted during settlement until notification handlers finish.
+    // The command then receives a fresh command context, outside lifecycle dispatch.
+    pi.sendUserMessage(`/execute-command-dispatch ${pendingCommand.id}`, {
+      expandPromptTemplates: true,
+    });
   });
 }
