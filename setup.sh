@@ -28,7 +28,7 @@ if [ ! -f "$EXPECTED_DIR/settings.json" ]; then
   "packages": [
     "git:github.com/pasky/chrome-cdp-skill",
     "git:github.com/HazAT/glimpse",
-    "git:github.com/IgorMitev/pi-interactive-subagents@32dbad521c0209577c6eb21614643ea65723f132",
+    "git:github.com/IgorMitev/pi-interactive-subagents@351e280aa0964a3e487604862b1507882109683d",
     {
       "source": "git:github.com/HazAT/pi-autoresearch",
       "extensions": [

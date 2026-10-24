@@ -59,11 +59,12 @@ The validator checks supported frontmatter, effective tool and skill references,
 
 ## Architecture
 
-This config uses **subagents** — visible pi sessions spawned in cmux terminals. Each subagent is a full pi session with its own identity, tools, and skills. The user can watch agents work in real-time and interact when needed.
+This config uses **subagents** — visible pi sessions spawned in a supported terminal multiplexer, including Herdr and cmux. Each subagent is a full pi session with its own identity, tools, and skills. The user can watch agents work in real-time and interact when needed.
 
 ### Key Concepts
 
-- **Subagents** — visible cmux terminals running pi. Autonomous agents use `auto-exit`; interactive agents finish with `subagent_done` after user collaboration.
+- **Subagents** — visible terminal panes or tabs running pi. For autonomous work, select an agent definition with `auto-exit: true`; bare launches require `subagent_done` to notify the parent and exit. A final reply alone does not complete a bare launch, and `interactive: false` does not enable auto-exit.
+- **Herdr context** — at session startup, the subagents extension supplies the active subagent backend and caller workspace, tab, and pane IDs to the model without starting a turn. The Herdr-managed state integration remains untouched.
 - **Agent definitions** (`agents/*.md`) — one source of truth for model, effective tools, skills, and identity per role. A hidden global override suppresses the package-bundled Claude agent.
 - **Plan workflow** — `/plan` spawns an interactive planner subagent, then orchestrates workers and reviewers.
 - **Iterate pattern** — `/iterate` forks the session into a subagent for quick fixes without polluting the main context.

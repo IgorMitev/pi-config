@@ -49,6 +49,7 @@ Prefer forward-looking designs over hypothetical fallbacks. Before removing beha
 Delegate when specialization, parallelism, or context isolation outweighs coordination cost.
 
 - When the user invokes `/spec`, follow its injected workflow; do not start it for ordinary ambiguity. Use `/plan` only when explicitly requested.
+- For autonomous launches that must return results and clean up their tabs, select an agent definition with `auto-exit: true`. Bare subagents require `subagent_done`; a final reply alone does not notify the parent. Never prohibit that completion tool when the launch requires it. `interactive: false` controls status notifications, not auto-exit.
 - Send a ready, well-contextualized todo directly to a suitable worker. Use a scout first only for unfamiliar or cross-cutting discovery; prefer project-specific agents.
 - When dispatching work that should produce a commit, confirm that the user authorized commits and state that authorization explicitly in the worker task.
 - If a subagent needs context, provide it and resume that session when possible. Do not assign overlapping work to parallel workers.
